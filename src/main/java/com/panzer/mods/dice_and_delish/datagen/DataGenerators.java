@@ -3,6 +3,7 @@ package com.panzer.mods.dice_and_delish.datagen;
 import com.panzer.mods.dice_and_delish.datagen.advancement.ModAdvancementProvider;
 import com.panzer.mods.dice_and_delish.datagen.block.ModBlockStateProvider;
 import com.panzer.mods.dice_and_delish.datagen.data.ModDataMapProvider;
+import com.panzer.mods.dice_and_delish.datagen.data.ModDatapackEntriesProvider;
 import com.panzer.mods.dice_and_delish.datagen.data.ModLootTableProvider;
 import com.panzer.mods.dice_and_delish.datagen.item.ModItemModelProvider;
 import com.panzer.mods.dice_and_delish.datagen.lang.ModEnUsLanguageProvider;
@@ -25,25 +26,10 @@ import net.minecraft.core.HolderLookup;
 import java.util.concurrent.CompletableFuture;
 //?}
 
-//? >1.21.2 {
-/*import com.panzer.mods.dice_and_delish.DiceAndDelish;
-import com.panzer.mods.dice_and_delish.datagen.data.ModDamageTypeProvider;
-import com.panzer.mods.dice_and_delish.datagen.worldgen.ModBiomeModifiers;
-import com.panzer.mods.dice_and_delish.datagen.worldgen.ModConfiguredFeatures;
-import com.panzer.mods.dice_and_delish.registry.world.worldgen.ModPlacedFeatures;
-import net.minecraft.core.RegistrySetBuilder;
-import net.minecraft.core.registries.Registries;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
-import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
-
-import java.util.Set;
-*///?}
-
 //? >1.21.2 && <1.21.4 {
 /*import net.minecraft.data.DataProvider;
 import net.minecraft.data.recipes.RecipeProvider;
 *///?}
-
 
 @SuppressWarnings("CommentedOutCode")
 public final class DataGenerators {
@@ -63,14 +49,6 @@ public final class DataGenerators {
 
         ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
         //?}
-
-        //? if >1.21.2 && <1.21.4 {
-        /*RegistrySetBuilder datapackBuilder = new RegistrySetBuilder()
-                .add(Registries.DAMAGE_TYPE, ModDamageTypeProvider::bootstrap)
-                .add(Registries.CONFIGURED_FEATURE, ModConfiguredFeatures::bootstrap)
-                .add(Registries.PLACED_FEATURE, ModPlacedFeatures::bootstrap)
-                .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, ModBiomeModifiers::bootstrap);
-        *///?}
 
         //? if <1.21.2 {
         generator.addProvider(event.includeClient(), new ModBlockStateProvider(packOutput, existingFileHelper));
@@ -92,6 +70,8 @@ public final class DataGenerators {
             generator.addProvider(event.includeServer(), new ModDamageTypeTagsProvider(packOutput, lookupProvider, existingFileHelper));
             generator.addProvider(event.includeServer(), new ModBiomeTagsProvider(packOutput, lookupProvider, existingFileHelper));
         }
+
+        event.createProvider(ModDatapackEntriesProvider::new);
         //?} <1.21.4 {
         /*DataProvider.Factory<ModBlockStateProvider> blockStateFactory = output -> new ModBlockStateProvider(output, existingFileHelper);
         generator.addProvider(event.includeClient(), blockStateFactory);
@@ -120,7 +100,7 @@ public final class DataGenerators {
         DataProvider.Factory<ModDataMapProvider> dataMapFactory = output -> new ModDataMapProvider(output, lookupProvider);
         generator.addProvider(event.includeServer(), dataMapFactory);
 
-        DataProvider.Factory<DatapackBuiltinEntriesProvider> datapackFactory = output -> new DatapackBuiltinEntriesProvider(output, lookupProvider, datapackBuilder, Set.of(DiceAndDelish.MOD_ID));
+        DataProvider.Factory<ModDatapackEntriesProvider> datapackFactory = output -> new ModDatapackEntriesProvider(output, lookupProvider);
         generator.addProvider(event.includeServer(), datapackFactory);
 
         if (event.includeServer()) {
@@ -147,14 +127,6 @@ public final class DataGenerators {
         event.createProvider(ModLootTableProvider::new);
         event.createProvider(ModAdvancementProvider::new);
         event.createProvider(ModDataMapProvider::new);
-
-        RegistrySetBuilder datapackBuilder = new RegistrySetBuilder()
-                .add(Registries.DAMAGE_TYPE, ModDamageTypeProvider::bootstrap)
-                .add(Registries.CONFIGURED_FEATURE, ModConfiguredFeatures::bootstrap)
-                .add(Registries.PLACED_FEATURE, ModPlacedFeatures::bootstrap)
-                .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, ModBiomeModifiers::bootstrap);
-
-        event.createProvider((output, lookup) -> new DatapackBuiltinEntriesProvider(output, lookup, datapackBuilder, Set.of(DiceAndDelish.MOD_ID)));
 
         // Tags
         event.createProvider((output, lookup) -> {

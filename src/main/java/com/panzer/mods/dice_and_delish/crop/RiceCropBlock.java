@@ -30,12 +30,10 @@ import java.util.function.Supplier;
 
 public final class RiceCropBlock extends ModCropBlock implements TallPlantHalves {
 
+    public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
     private static final int MAX_AGE = 4;
     private static final int SPLIT_THRESHOLD = 3;
     private static final VoxelShape HITBOX = Block.box(1.0, 0.0, 1.0, 15.0, 16.0, 15.0);
-
-    public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
-
     private final MapCodec<RiceCropBlock> codec;
 
     public RiceCropBlock(BlockBehaviour.Properties properties, VoxelShape[] shapes,
@@ -114,6 +112,29 @@ public final class RiceCropBlock extends ModCropBlock implements TallPlantHalves
         }
     }
 
+    static boolean tryGrowOrSyncUpper(@NotNull RiceCropBlock block, @NotNull Level level, @NotNull BlockPos lowerPos,
+                                      @NotNull IntegerProperty ageProperty, int nextAge) {
+        return block.resolveTallGrowth(block, level, lowerPos, ageProperty, nextAge,
+                SPLIT_THRESHOLD, b -> block.defaultBlockState());
+    }
+
+    @Override
+    public void growCrops(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state) {
+        if (state.getValue(HALF) == DoubleBlockHalf.UPPER) {
+            pos = pos.below();
+            state = level.getBlockState(pos);
+        }
+
+        IntegerProperty ageProperty = this.getAgeProperty();
+        int nextAge = Math.min(state.getValue(ageProperty) + 1, getMaxAge());
+
+        if (!tryGrowOrSyncUpper(this, level, pos, ageProperty, nextAge)) {
+            return;
+        }
+
+        level.setBlock(pos, state.setValue(ageProperty, nextAge), 2);
+    }
+
     @Override
     protected void randomTick(BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
         if (state.getValue(HALF) == DoubleBlockHalf.UPPER) {
@@ -126,17 +147,27 @@ public final class RiceCropBlock extends ModCropBlock implements TallPlantHalves
         }
 
         float growthSpeed = getGrowthSpeed(state, level, pos);
-        if (random.nextInt((int)(25.0F / growthSpeed) + 1) != 0) {
+        if (random.nextInt((int) (25.0F / growthSpeed) + 1) != 0) {
             return;
         }
 
         int nextAge = age + 1;
+        BlockPos abovePos = pos.above();
 
-        level.setBlock(pos, state.setValue(getAgeProperty(), nextAge), 3);
+        if (nextAge >= SPLIT_THRESHOLD) {
+            BlockState aboveState = level.getBlockState(abovePos);
+            boolean isAboveValid = aboveState.isAir() || (aboveState.is(this) && aboveState.getValue(HALF) == DoubleBlockHalf.UPPER);
 
-        if (!resolveTallGrowth(this, level, pos, getAgeProperty(), nextAge, SPLIT_THRESHOLD,
-                block -> this.defaultBlockState())) {
-            level.setBlock(pos, state, 3);
+            if (!isAboveValid) {
+                return;
+            }
+
+            level.setBlock(pos, state.setValue(getAgeProperty(), nextAge), 3);
+            level.setBlock(abovePos, this.defaultBlockState()
+                    .setValue(getAgeProperty(), nextAge)
+                    .setValue(HALF, DoubleBlockHalf.UPPER), 3);
+        } else {
+            level.setBlock(pos, state.setValue(getAgeProperty(), nextAge), 3);
         }
     }
 

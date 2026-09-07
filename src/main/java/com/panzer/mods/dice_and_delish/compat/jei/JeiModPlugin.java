@@ -33,10 +33,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-//? <1.21.4
+//? <1.21.4 {
 import mezz.jei.api.ingredients.subtypes.UidContext;
+//?} else
+//import java.util.Objects;
 
 @JeiPlugin
 @SuppressWarnings("unused")
@@ -166,7 +167,11 @@ public class JeiModPlugin implements IModPlugin {
             return;
         }
 
-        RecipeManager recipeManager = Objects.requireNonNull(level.getServer()).getRecipeManager();
+        //? <1.21.4 {
+        RecipeManager recipeManager = level.getRecipeManager();
+        //?} else {
+        /*RecipeManager recipeManager = Objects.requireNonNull(level.getServer()).getRecipeManager();
+        *///?}
         HolderLookup.Provider registries = level.registryAccess();
 
         List<RecipeHolder<CookRecipe>> grillRecipes = collectGrillRecipes(recipeManager);
