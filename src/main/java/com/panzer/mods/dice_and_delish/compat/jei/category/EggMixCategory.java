@@ -1,9 +1,10 @@
 package com.panzer.mods.dice_and_delish.compat.jei.category;
 
-//? if <1.21.2 {
+//? <1.21.2 || >1.21.3 {
 import com.panzer.mods.dice_and_delish.DiceAndDelish;
 import com.panzer.mods.dice_and_delish.recipe.cook.CookRecipe;
 import com.panzer.mods.dice_and_delish.recipe.mix.MixRecipe;
+import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -12,7 +13,6 @@ import mezz.jei.api.gui.placement.VerticalAlignment;
 import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.AbstractRecipeCategory;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
@@ -23,11 +23,28 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+//? <1.21.4 {
+import mezz.jei.api.recipe.RecipeType;
+ //?} else {
+/*import mezz.jei.api.recipe.types.IRecipeType;
+import net.minecraft.resources.ResourceLocation;
+*///?}
+
 public final class EggMixCategory extends AbstractRecipeCategory<RecipeHolder<MixRecipe>> {
 
+    //? if <1.21.4 {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static final RecipeType<RecipeHolder<MixRecipe>> RECIPE_TYPE =
             (RecipeType) RecipeType.create(DiceAndDelish.MOD_ID, "egg_mix_cooking", RecipeHolder.class);
+
+    //?} else {
+    /*@SuppressWarnings({"unchecked", "rawtypes"})
+    public static final IRecipeType<RecipeHolder<MixRecipe>> RECIPE_TYPE =
+            IRecipeType.create(
+                    ResourceLocation.fromNamespaceAndPath(DiceAndDelish.MOD_ID, "egg_mix_cooking"),
+                    (Class) RecipeHolder.class
+            );
+    *///?}
 
     private static final int WIDTH = 82;
     private static final int HEIGHT = 44;
@@ -72,9 +89,10 @@ public final class EggMixCategory extends AbstractRecipeCategory<RecipeHolder<Mi
         MixRecipe recipe = recipeHolder.value();
         List<Ingredient> inputs = recipe.inputs();
 
+        //? <1.21.4 {
         builder.addInputSlot(EGG_INPUT_X, EGG_INPUT_Y)
                 .setStandardSlotBackground()
-                .addIngredient(mezz.jei.api.constants.VanillaTypes.ITEM_STACK, new ItemStack(Items.EGG));
+                .addIngredient(VanillaTypes.ITEM_STACK, new ItemStack(Items.EGG));
 
         for (Ingredient ingredient : inputs) {
             if (!ingredient.test(new ItemStack(Items.EGG))) {
@@ -84,10 +102,28 @@ public final class EggMixCategory extends AbstractRecipeCategory<RecipeHolder<Mi
                 break;
             }
         }
+        //?} else {
+        /*builder.addOutputSlot(OUTPUT_X, OUTPUT_Y)
+                .setOutputSlotBackground()
+                .add(recipe.result());
+
+        builder.addInputSlot(EGG_INPUT_X, EGG_INPUT_Y)
+                .setStandardSlotBackground()
+                .add(VanillaTypes.ITEM_STACK, new ItemStack(Items.EGG));
+
+        for (Ingredient ingredient : inputs) {
+            if (!ingredient.test(new ItemStack(Items.EGG))) {
+                builder.addInputSlot(OTHER_INPUT_X, OTHER_INPUT_Y)
+                        .setStandardSlotBackground()
+                        .add(ingredient);
+                break;
+            }
+        }
 
         builder.addOutputSlot(OUTPUT_X, OUTPUT_Y)
                 .setOutputSlotBackground()
-                .addItemStack(recipe.result());
+                .add(recipe.result());
+        *///?}
     }
 
     @Override

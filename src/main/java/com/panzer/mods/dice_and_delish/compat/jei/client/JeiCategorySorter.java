@@ -1,6 +1,6 @@
 package com.panzer.mods.dice_and_delish.compat.jei.client;
 
-//? if <1.21.2 {
+//? <1.21.2 || >1.21.3 {
 import com.panzer.mods.dice_and_delish.util.ModLogger;
 import net.minecraft.client.Minecraft;
 

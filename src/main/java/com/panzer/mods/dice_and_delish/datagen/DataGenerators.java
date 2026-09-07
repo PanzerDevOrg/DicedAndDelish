@@ -1,9 +1,7 @@
 package com.panzer.mods.dice_and_delish.datagen;
 
-import com.panzer.mods.dice_and_delish.DiceAndDelish;
 import com.panzer.mods.dice_and_delish.datagen.advancement.ModAdvancementProvider;
 import com.panzer.mods.dice_and_delish.datagen.block.ModBlockStateProvider;
-import com.panzer.mods.dice_and_delish.datagen.data.ModDamageTypeProvider;
 import com.panzer.mods.dice_and_delish.datagen.data.ModDataMapProvider;
 import com.panzer.mods.dice_and_delish.datagen.data.ModLootTableProvider;
 import com.panzer.mods.dice_and_delish.datagen.item.ModItemModelProvider;
@@ -15,27 +13,37 @@ import com.panzer.mods.dice_and_delish.datagen.tags.ModBiomeTagsProvider;
 import com.panzer.mods.dice_and_delish.datagen.tags.ModBlockTagsProvider;
 import com.panzer.mods.dice_and_delish.datagen.tags.ModDamageTypeTagsProvider;
 import com.panzer.mods.dice_and_delish.datagen.tags.ModItemTagsProvider;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
+
+//? <1.21.4 {
+import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.minecraft.core.HolderLookup;
+
+import java.util.concurrent.CompletableFuture;
+//?}
+
+//? >1.21.2 {
+/*import com.panzer.mods.dice_and_delish.DiceAndDelish;
+import com.panzer.mods.dice_and_delish.datagen.data.ModDamageTypeProvider;
 import com.panzer.mods.dice_and_delish.datagen.worldgen.ModBiomeModifiers;
 import com.panzer.mods.dice_and_delish.datagen.worldgen.ModConfiguredFeatures;
 import com.panzer.mods.dice_and_delish.registry.world.worldgen.ModPlacedFeatures;
-import com.panzer.mods.dice_and_delish.util.ModLogger;
-//? if >=1.21.2 {
-/*import net.minecraft.data.DataProvider;
-import net.minecraft.data.recipes.RecipeProvider;
-import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
-import java.util.Set;
-*///?}
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.DataGenerator;
-import net.minecraft.data.PackOutput;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
-import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.Set;
+*///?}
+
+//? >1.21.2 && <1.21.4 {
+/*import net.minecraft.data.DataProvider;
+import net.minecraft.data.recipes.RecipeProvider;
+*///?}
+
 
 @SuppressWarnings("CommentedOutCode")
 public final class DataGenerators {
@@ -48,10 +56,21 @@ public final class DataGenerators {
     }
 
     private static void gatherData(GatherDataEvent event) {
+        //? <1.21.4 {
         DataGenerator generator = event.getGenerator();
         PackOutput packOutput = generator.getPackOutput();
-        ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
+
+        ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
+        //?}
+
+        //? if >1.21.2 && <1.21.4 {
+        /*RegistrySetBuilder datapackBuilder = new RegistrySetBuilder()
+                .add(Registries.DAMAGE_TYPE, ModDamageTypeProvider::bootstrap)
+                .add(Registries.CONFIGURED_FEATURE, ModConfiguredFeatures::bootstrap)
+                .add(Registries.PLACED_FEATURE, ModPlacedFeatures::bootstrap)
+                .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, ModBiomeModifiers::bootstrap);
+        *///?}
 
         //? if <1.21.2 {
         generator.addProvider(event.includeClient(), new ModBlockStateProvider(packOutput, existingFileHelper));
@@ -65,12 +84,6 @@ public final class DataGenerators {
         generator.addProvider(event.includeServer(), new ModAdvancementProvider(packOutput, lookupProvider, existingFileHelper));
         generator.addProvider(event.includeServer(), new ModDataMapProvider(packOutput, lookupProvider));
 
-        event.createDatapackRegistryObjects(new RegistrySetBuilder()
-                .add(Registries.DAMAGE_TYPE, ModDamageTypeProvider::bootstrap)
-                .add(Registries.CONFIGURED_FEATURE, ModConfiguredFeatures::bootstrap)
-                .add(Registries.PLACED_FEATURE, ModPlacedFeatures::bootstrap)
-                .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, ModBiomeModifiers::bootstrap));
-
         if (event.includeServer()) {
             event.createBlockAndItemTags(
                     (output, lookup) -> new ModBlockTagsProvider(output, lookup, existingFileHelper),
@@ -79,7 +92,7 @@ public final class DataGenerators {
             generator.addProvider(event.includeServer(), new ModDamageTypeTagsProvider(packOutput, lookupProvider, existingFileHelper));
             generator.addProvider(event.includeServer(), new ModBiomeTagsProvider(packOutput, lookupProvider, existingFileHelper));
         }
-        //?} else {
+        //?} <1.21.4 {
         /*DataProvider.Factory<ModBlockStateProvider> blockStateFactory = output -> new ModBlockStateProvider(output, existingFileHelper);
         generator.addProvider(event.includeClient(), blockStateFactory);
 
@@ -107,12 +120,6 @@ public final class DataGenerators {
         DataProvider.Factory<ModDataMapProvider> dataMapFactory = output -> new ModDataMapProvider(output, lookupProvider);
         generator.addProvider(event.includeServer(), dataMapFactory);
 
-        RegistrySetBuilder datapackBuilder = new RegistrySetBuilder()
-                .add(Registries.DAMAGE_TYPE, ModDamageTypeProvider::bootstrap)
-                .add(Registries.CONFIGURED_FEATURE, ModConfiguredFeatures::bootstrap)
-                .add(Registries.PLACED_FEATURE, ModPlacedFeatures::bootstrap)
-                .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, ModBiomeModifiers::bootstrap);
-
         DataProvider.Factory<DatapackBuiltinEntriesProvider> datapackFactory = output -> new DatapackBuiltinEntriesProvider(output, lookupProvider, datapackBuilder, Set.of(DiceAndDelish.MOD_ID));
         generator.addProvider(event.includeServer(), datapackFactory);
 
@@ -129,6 +136,35 @@ public final class DataGenerators {
             DataProvider.Factory<ModBiomeTagsProvider> biomeTagsFactory = output -> new ModBiomeTagsProvider(output, lookupProvider, existingFileHelper);
             generator.addProvider(true, biomeTagsFactory);
         }
+        *///?} else {
+        /*event.createProvider(ModBlockStateProvider::new);
+        event.createProvider(ModItemModelProvider::new);
+        event.createProvider(ModEnUsLanguageProvider::new);
+        event.createProvider(ModEsEsLanguageProvider::new);
+        event.createProvider(ModSoundDefinitionsProvider::new);
+
+        event.createProvider(ModRecipeProvider.Runner::new);
+        event.createProvider(ModLootTableProvider::new);
+        event.createProvider(ModAdvancementProvider::new);
+        event.createProvider(ModDataMapProvider::new);
+
+        RegistrySetBuilder datapackBuilder = new RegistrySetBuilder()
+                .add(Registries.DAMAGE_TYPE, ModDamageTypeProvider::bootstrap)
+                .add(Registries.CONFIGURED_FEATURE, ModConfiguredFeatures::bootstrap)
+                .add(Registries.PLACED_FEATURE, ModPlacedFeatures::bootstrap)
+                .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, ModBiomeModifiers::bootstrap);
+
+        event.createProvider((output, lookup) -> new DatapackBuiltinEntriesProvider(output, lookup, datapackBuilder, Set.of(DiceAndDelish.MOD_ID)));
+
+        // Tags
+        event.createProvider((output, lookup) -> {
+            ModBlockTagsProvider blockTagsProvider = new ModBlockTagsProvider(output, lookup);
+            event.createProvider((out, l) -> new ModItemTagsProvider(out, l, blockTagsProvider.contentsGetter()));
+            return blockTagsProvider;
+        });
+
+        event.createProvider(ModDamageTypeTagsProvider::new);
+        event.createProvider(ModBiomeTagsProvider::new);
         *///?}
     }
 }

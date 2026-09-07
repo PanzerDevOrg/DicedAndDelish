@@ -11,6 +11,8 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+
+//? <1.21.4
 import net.minecraft.world.inventory.InventoryMenu;
 
 public final class FlatLiquidQuadRenderer {
@@ -52,17 +54,25 @@ public final class FlatLiquidQuadRenderer {
     }
 
     private static TextureAtlasSprite resolveSprite(ResourceLocation sprite) {
+        ResourceLocation blockAtlas;
+        //? <1.21.4 {
+        blockAtlas = InventoryMenu.BLOCK_ATLAS;
+        //?} else {
+        /*blockAtlas = ResourceLocation.withDefaultNamespace("textures/atlas/blocks.png");
+        *///?}
+
         if (sprite.equals(DEFAULT_LIQUID_SPRITE)) {
             if (cachedDefaultSprite == null) {
                 ModelManager modelManager = Minecraft.getInstance().getModelManager();
-                cachedDefaultSprite = modelManager.getAtlas(InventoryMenu.BLOCK_ATLAS).getSprite(sprite);
+                cachedDefaultSprite = modelManager.getAtlas(blockAtlas).getSprite(sprite);
             }
             return cachedDefaultSprite;
         }
         ModelManager modelManager = Minecraft.getInstance().getModelManager();
-        return modelManager.getAtlas(InventoryMenu.BLOCK_ATLAS).getSprite(sprite);
+        return modelManager.getAtlas(blockAtlas).getSprite(sprite);
     }
 
+    @SuppressWarnings("unused")
     public static void clearCache() {
         cachedDefaultSprite = null;
     }

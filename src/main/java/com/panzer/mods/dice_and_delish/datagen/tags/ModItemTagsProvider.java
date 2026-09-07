@@ -13,20 +13,30 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 
+
+//? if <1.21.4
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+
 public class ModItemTagsProvider extends ItemTagsProvider {
 
+    //? if <1.21.4 {
     public ModItemTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider,
                                CompletableFuture<TagLookup<Block>> blockTags,
                                ExistingFileHelper existingFileHelper) {
         super(output, lookupProvider, blockTags, DiceAndDelish.MOD_ID, existingFileHelper);
     }
+    //?} else {
+    /*public ModItemTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider,
+                               CompletableFuture<TagLookup<Block>> blockTags) {
+        super(output, lookupProvider, blockTags, DiceAndDelish.MOD_ID);
+    }
+    *///?}
 
     @Override
     protected void addTags(HolderLookup.@NotNull Provider provider) {

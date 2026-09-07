@@ -9,17 +9,26 @@ import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageType;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
+//? if <1.21.4 {
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import org.jetbrains.annotations.Nullable;
+//?}
+
 public class ModDamageTypeTagsProvider extends TagsProvider<DamageType> {
 
+    //? <1.21.4 {
     public ModDamageTypeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, @Nullable ExistingFileHelper existingFileHelper) {
         super(output, Registries.DAMAGE_TYPE, lookupProvider, DiceAndDelish.MOD_ID, existingFileHelper);
     }
+    //?} else {
+    /*public ModDamageTypeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+        super(output, Registries.DAMAGE_TYPE, lookupProvider, DiceAndDelish.MOD_ID);
+    }
+    *///?}
 
     @Override
     protected void addTags(HolderLookup.@NotNull Provider provider) {

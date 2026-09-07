@@ -1,6 +1,6 @@
 package com.panzer.mods.dice_and_delish.compat.jei.category;
 
-//? if <1.21.2 {
+//? <1.21.2 || >1.21.3 {
 import com.panzer.mods.dice_and_delish.DiceAndDelish;
 import com.panzer.mods.dice_and_delish.recipe.cook.CookRecipe;
 import com.panzer.mods.dice_and_delish.registry.item.ModItems;
@@ -10,18 +10,34 @@ import mezz.jei.api.gui.placement.VerticalAlignment;
 import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.AbstractRecipeCategory;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import org.jetbrains.annotations.NotNull;
 
+//? <1.21.4 {
+import mezz.jei.api.recipe.RecipeType;
+ //?} else {
+/*import mezz.jei.api.recipe.types.IRecipeType;
+import net.minecraft.resources.ResourceLocation;
+*///?}
+
 public final class GrillCookingCategory extends AbstractRecipeCategory<RecipeHolder<CookRecipe>> {
 
+    //? if <1.21.4 {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static final RecipeType<RecipeHolder<CookRecipe>> RECIPE_TYPE =
             (RecipeType) RecipeType.create(DiceAndDelish.MOD_ID, "grill_cooking", RecipeHolder.class);
+
+    //?} else {
+    /*@SuppressWarnings({"unchecked", "rawtypes"})
+    public static final IRecipeType<RecipeHolder<CookRecipe>> RECIPE_TYPE =
+            IRecipeType.create(
+                    ResourceLocation.fromNamespaceAndPath(DiceAndDelish.MOD_ID, "grill_cooking"),
+                    (Class) RecipeHolder.class
+            );
+    *///?}
 
     private static final int REGULAR_COOK_TIME = CookRecipe.DEFAULT_COOKING_TIME;
 
@@ -39,6 +55,7 @@ public final class GrillCookingCategory extends AbstractRecipeCategory<RecipeHol
     public void setRecipe(@NotNull IRecipeLayoutBuilder builder, @NotNull RecipeHolder<CookRecipe> recipeHolder, @NotNull IFocusGroup focuses) {
         CookRecipe recipe = recipeHolder.value();
 
+        //? <1.21.4 {
         builder.addInputSlot(1, 1)
                 .setStandardSlotBackground()
                 .addIngredients(recipe.input());
@@ -46,6 +63,15 @@ public final class GrillCookingCategory extends AbstractRecipeCategory<RecipeHol
         builder.addOutputSlot(61, 9)
                 .setOutputSlotBackground()
                 .addItemStack(recipe.result());
+        //?} else {
+        /*builder.addInputSlot(1, 1)
+                .setStandardSlotBackground()
+                .add(recipe.input());
+
+        builder.addOutputSlot(61, 9)
+                .setOutputSlotBackground()
+                .add(recipe.result());
+        *///?}
     }
 
     @Override

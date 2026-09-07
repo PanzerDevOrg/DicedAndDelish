@@ -17,17 +17,22 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.neoforged.neoforge.common.data.AdvancementProvider;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
-//? if <1.21.2 {
+//? <1.21.2 {
 import net.minecraft.advancements.critereon.BlockPredicate;
 import net.minecraft.advancements.critereon.LocationPredicate;
 import net.minecraft.advancements.critereon.ItemUsedOnLocationTrigger;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 //?} else {
 /*import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.Item;
 *///?}
+
+//? >1.21.3 {
+/*import net.minecraft.data.advancements.AdvancementProvider;
+*///?} else
+import net.neoforged.neoforge.common.data.AdvancementProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -35,9 +40,10 @@ import java.util.function.Consumer;
 
 import static net.minecraft.advancements.Advancement.Builder;
 
-@SuppressWarnings("CommentedOutCode")
+@SuppressWarnings({"CommentedOutCode", "unused"})
 public class ModAdvancementProvider extends AdvancementProvider {
 
+    //? <1.21.4 {
     public ModAdvancementProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries,
                                   ExistingFileHelper existingFileHelper) {
         super(output, registries, existingFileHelper, List.of(ModAdvancementProvider::generate));
@@ -45,7 +51,13 @@ public class ModAdvancementProvider extends AdvancementProvider {
 
     private static void generate(HolderLookup.Provider registries, Consumer<AdvancementHolder> saver,
                                  ExistingFileHelper existingFileHelper) {
+    //?} else {
+    /*public ModAdvancementProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+        super(output, registries, List.of(ModAdvancementProvider::generate));
+    }
 
+    private static void generate(HolderLookup.Provider registries, Consumer<AdvancementHolder> saver) {
+    *///?}
         //? if >=1.21.2 {
         /*HolderLookup.RegistryLookup<Item> itemRegistry = registries.lookupOrThrow(Registries.ITEM);
         *///?}

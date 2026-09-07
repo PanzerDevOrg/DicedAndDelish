@@ -10,6 +10,7 @@ val modProps = extensions.getByType(PanzerModExtension::class.java).props
 
 val mainSourceSet = sourceSets.main.get()
 
+@Suppress("AvoidRepositoriesInBuildGradle")
 repositories {
     maven("https://maven.blamejared.com/") {
         name = "BlameJared"
@@ -59,6 +60,7 @@ sourceSets.main {
     }
 }
 
+@Suppress("AvoidDuplicateDependencies", "RedundantSuppression")
 dependencies {
     val jadeVersion = modProps.req(project, "jade_version")
     val jeiVersion = modProps.req(project, "jei_version")

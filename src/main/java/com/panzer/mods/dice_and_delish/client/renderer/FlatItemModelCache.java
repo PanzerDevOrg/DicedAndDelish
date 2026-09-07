@@ -18,14 +18,34 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-//?} else
-//import net.minecraft.client.resources.model.BakedModel;
+//?} else if >=1.21.4 {
+/*import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.client.model.data.ModelData;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+*///?} else {
+/*import net.minecraft.client.resources.model.BakedModel;
+*///?}
 
 public final class FlatItemModelCache {
 
     //? if <1.21.2 {
     private static final Map<BakedModel, BakedModel> CACHE = new ConcurrentHashMap<>();
-    //?}
+    //?} else if >=1.21.4 {
+    /*private static final Map<BakedModel, BakedModel> CACHE = new ConcurrentHashMap<>();
+    *///?}
 
     private FlatItemModelCache() {}
 
@@ -38,7 +58,15 @@ public final class FlatItemModelCache {
             return original;
         }
         return CACHE.computeIfAbsent(original, FlatBillboardModel::new);
-        //?} else {
+        //?} else if >=1.21.4 {
+        /*if (!BillboardConfig.isEnabled()) {
+            return original;
+        }
+        if (original.isGui3d()) {
+            return original;
+        }
+        return CACHE.computeIfAbsent(original, FlatBillboardModel::new);
+        *///?} else {
         /*return original;
          *///?}
     }
@@ -46,7 +74,9 @@ public final class FlatItemModelCache {
     public static void clear() {
         //? if <1.21.2 {
         CACHE.clear();
-        //?}
+        //?} else if >=1.21.4 {
+        /*CACHE.clear();
+        *///?}
     }
 
     //? if <1.21.2 {
@@ -134,5 +164,108 @@ public final class FlatItemModelCache {
             return originalModel.getRenderTypes(itemStack, fabulous);
         }
     }
-    //?}
+    //?} else if >=1.21.4 {
+    /*/^*
+     * A BakedModel wrapper that strips non-flat quads (UP, DOWN, WEST, EAST) from item/generated models,
+     * keeping only SOUTH/NORTH faces for billboard rendering at distance.
+     * <p>
+     * In 1.21.4, BakedModelWrapper was removed. This class directly implements BakedModel and delegates
+     * all methods to the wrapped original.
+     ^/
+    private static final class FlatBillboardModel implements BakedModel {
+
+        private final BakedModel original;
+        private volatile List<BakedQuad> cachedFlatQuads;
+
+        FlatBillboardModel(BakedModel original) {
+            this.original = original;
+        }
+
+        private List<BakedQuad> buildFlatQuads() {
+            RandomSource rand = RandomSource.create(42L);
+
+            List<BakedQuad> allQuads = new ArrayList<>(original.getQuads(null, null, rand, ModelData.EMPTY, null));
+            for (Direction d : Direction.values()) {
+                allQuads.addAll(original.getQuads(null, d, rand, ModelData.EMPTY, null));
+            }
+
+            List<BakedQuad> flatQuads = new ArrayList<>();
+            for (BakedQuad quad : allQuads) {
+                Direction dir = quad.getDirection();
+                if (dir != Direction.UP && dir != Direction.DOWN && dir != Direction.WEST && dir != Direction.EAST) {
+                    flatQuads.add(quad);
+                }
+            }
+
+            return flatQuads.isEmpty() ? allQuads : flatQuads;
+        }
+
+        private List<BakedQuad> getFlatQuads() {
+            List<BakedQuad> cached = cachedFlatQuads;
+            if (cached != null) {
+                return cached;
+            }
+            List<BakedQuad> built = buildFlatQuads();
+            cachedFlatQuads = built;
+            return built;
+        }
+
+        // --- BakedModel interface ---
+
+        @Override
+        public @NotNull List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @NotNull RandomSource rand) {
+            if (side == null) {
+                return getFlatQuads();
+            }
+            return List.of();
+        }
+
+        @Override
+        public boolean useAmbientOcclusion() {
+            return original.useAmbientOcclusion();
+        }
+
+        @Override
+        public boolean isGui3d() {
+            return false;
+        }
+
+        @Override
+        public boolean usesBlockLight() {
+            return original.usesBlockLight();
+        }
+
+        @Override
+        public @NotNull TextureAtlasSprite getParticleIcon() {
+            return original.getParticleIcon();
+        }
+
+        @Override
+        public @NotNull ItemTransforms getTransforms() {
+            return original.getTransforms();
+        }
+
+        // --- IBakedModelExtension overrides ---
+
+        @Override
+        public @NotNull List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side,
+                                                 @NotNull RandomSource rand, @NotNull ModelData data,
+                                                 @Nullable RenderType renderType) {
+            if (side == null) {
+                return getFlatQuads();
+            }
+            return List.of();
+        }
+
+        @Override
+        public @NotNull RenderType getRenderType(net.minecraft.world.item.@NotNull ItemStack itemStack) {
+            return original.getRenderType(itemStack);
+        }
+
+        @Override
+        public @NotNull TextureAtlasSprite getParticleIcon(@NotNull ModelData data) {
+            return original.getParticleIcon(data);
+        }
+    }
+    *///?}
 }

@@ -9,11 +9,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
-//? if <1.21.2 {
-import net.minecraft.world.ItemInteractionResult;
-//?} else {
-/*import net.minecraft.world.InteractionResult;
-*///?}
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -31,6 +26,12 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
+
+//? if <1.21.2 {
+import net.minecraft.world.ItemInteractionResult;
+//?} else {
+/*import net.minecraft.world.InteractionResult;
+*///?}
 
 public final class TomatoCropBlock extends ModCropBlock {
 
@@ -62,20 +63,20 @@ public final class TomatoCropBlock extends ModCropBlock {
     }
 
     @Override
-    //? if <1.21.2 {
+            //? if <1.21.2 {
     protected @NotNull ItemInteractionResult useItemOn(@NotNull ItemStack stack, @NotNull BlockState state,
-                                                       //?} else
-                                                       //protected @NotNull InteractionResult useItemOn(@NotNull ItemStack stack, @NotNull BlockState state,
-                                                       @NotNull Level level, @NotNull BlockPos pos,
-                                                       @NotNull Player player, @NotNull InteractionHand hand,
-                                                       @NotNull BlockHitResult hitResult) {
+     //?} else
+    //protected @NotNull InteractionResult useItemOn(@NotNull ItemStack stack, @NotNull BlockState state,
+                                                   @NotNull Level level, @NotNull BlockPos pos,
+                                                   @NotNull Player player, @NotNull InteractionHand hand,
+                                                   @NotNull BlockHitResult hitResult) {
         if (!stack.is(Items.STICK)) {
             return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
         }
         if (level.isClientSide()) {
             //? if <1.21.2 {
             return ItemInteractionResult.SUCCESS;
-            //?} else
+             //?} else
             //return InteractionResult.SUCCESS;
         }
 
@@ -99,7 +100,7 @@ public final class TomatoCropBlock extends ModCropBlock {
 
         //? if <1.21.2 {
         return ItemInteractionResult.SUCCESS;
-        //?} else
+         //?} else
         //return InteractionResult.SUCCESS;
     }
 }

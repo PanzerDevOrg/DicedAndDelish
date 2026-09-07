@@ -1,7 +1,6 @@
 package com.panzer.mods.dice_and_delish.compat.jei;
 
-//? if <1.21.2 {
-
+//? <1.21.2 || >1.21.3 {
 import com.panzer.mods.dice_and_delish.DiceAndDelish;
 import com.panzer.mods.dice_and_delish.compat.jei.category.CuttingBoardCategory;
 import com.panzer.mods.dice_and_delish.compat.jei.category.GrillCookingCategory;
@@ -17,7 +16,6 @@ import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.ingredients.subtypes.ISubtypeInterpreter;
-import mezz.jei.api.ingredients.subtypes.UidContext;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
@@ -30,13 +28,15 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CampfireCookingRecipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+//? <1.21.4
+import mezz.jei.api.ingredients.subtypes.UidContext;
 
 @JeiPlugin
 @SuppressWarnings("unused")
@@ -46,20 +46,27 @@ public class JeiModPlugin implements IModPlugin {
     private static final ResourceLocation PLUGIN_ID =
             ResourceLocation.fromNamespaceAndPath(DiceAndDelish.MOD_ID, "jei_plugin");
 
+    //? if <1.21.4 {
     private static final ISubtypeInterpreter<ItemStack> IRON_CUP_INTERPRETER = new ISubtypeInterpreter<>() {
         @Override
-        public @NotNull String getSubtypeData(@NotNull ItemStack stack, @NotNull UidContext context) {
+        public Object getSubtypeData(@NotNull ItemStack stack, @NotNull UidContext context) {
             IronCupContent content = IronCupItem.contentOf(stack);
-            return content != null ? content.getSerializedName() : EMPTY_SUBTYPE;
+            return content != null ? content.getSerializedName() : null;
         }
 
         @Override
-        @SuppressWarnings({"deprecation", "RedundantSuppression"})
         public @NotNull String getLegacyStringSubtypeInfo(@NotNull ItemStack stack, @NotNull UidContext context) {
             IronCupContent content = IronCupItem.contentOf(stack);
-            return content != null ? content.getSerializedName() : EMPTY_SUBTYPE;
+            return content != null ? content.getSerializedName() : "";
         }
     };
+    //?} else {
+    /*private static final ISubtypeInterpreter<ItemStack> IRON_CUP_INTERPRETER = (stack, context) -> {
+        IronCupContent content = IronCupItem.contentOf(stack);
+        return content != null ? content.getSerializedName() : null;
+    };
+
+    *///?}
 
     @Override
     public @NotNull ResourceLocation getPluginUid() {
@@ -84,6 +91,7 @@ public class JeiModPlugin implements IModPlugin {
 
     @Override
     public void registerRecipeCatalysts(@NotNull IRecipeCatalystRegistration registration) {
+        //? <1.21.4 {
         registration.addRecipeCatalyst(
                 new ItemStack(ModItems.GRILL_TABLE.get()),
                 GrillCookingCategory.RECIPE_TYPE);
@@ -96,6 +104,19 @@ public class JeiModPlugin implements IModPlugin {
         registration.addRecipeCatalyst(
                 new ItemStack(ModItems.SKILLET.get()),
                 SkilletCookingCategory.RECIPE_TYPE);
+
+        //?} else {
+        /*registration.addCraftingStation(
+                GrillCookingCategory.RECIPE_TYPE,
+                new ItemStack(ModItems.GRILL_TABLE.get()),
+                new ItemStack(ModItems.GRILL_TABLE_SOUL.get()));
+        registration.addCraftingStation(
+                CuttingBoardCategory.RECIPE_TYPE,
+                new ItemStack(ModItems.CUTTING_BOARD.get()));
+        registration.addCraftingStation(
+                SkilletCookingCategory.RECIPE_TYPE,
+                new ItemStack(ModItems.SKILLET.get()));
+        *///?}
     }
 
     @Override
@@ -145,11 +166,20 @@ public class JeiModPlugin implements IModPlugin {
             return;
         }
 
-        RecipeManager recipeManager = level.getRecipeManager();
+        RecipeManager recipeManager = Objects.requireNonNull(level.getServer()).getRecipeManager();
         HolderLookup.Provider registries = level.registryAccess();
 
         List<RecipeHolder<CookRecipe>> grillRecipes = collectGrillRecipes(recipeManager);
-        List<RecipeHolder<CampfireCookingRecipe>> campfireRecipes = recipeManager.getAllRecipesFor(net.minecraft.world.item.crafting.RecipeType.CAMPFIRE_COOKING);
+        //? if <1.21.4 {
+        List<RecipeHolder<CampfireCookingRecipe>> campfireRecipes = recipeManager.getAllRecipesFor(RecipeType.CAMPFIRE_COOKING);
+
+        //?} else {
+        /*@SuppressWarnings("unchecked")
+        List<RecipeHolder<CampfireCookingRecipe>> campfireRecipes = recipeManager.getRecipes().stream()
+                .filter(holder -> holder.value().getType() == RecipeType.CAMPFIRE_COOKING)
+                .map(holder -> (RecipeHolder<CampfireCookingRecipe>) holder)
+                .toList();
+        *///?}
 
         List<RecipeHolder<CookRecipe>> mergedRecipes = new ArrayList<>(grillRecipes.size() + campfireRecipes.size());
         mergedRecipes.addAll(grillRecipes);
@@ -163,6 +193,7 @@ public class JeiModPlugin implements IModPlugin {
         jeiRuntime.getRecipeManager().addRecipes(SkilletCookingCategory.RECIPE_TYPE, collectMixRecipes(recipeManager));
     }
 
+    //? <1.21.4 {
     private List<RecipeHolder<CuttingRecipe>> collectCuttingRecipes(RecipeManager recipeManager) {
         return recipeManager.getAllRecipesFor(ModRecipeTypes.CUT_TYPE.get());
     }
@@ -184,5 +215,50 @@ public class JeiModPlugin implements IModPlugin {
         );
         return new RecipeHolder<>(holder.id(), cookRecipe);
     }
+
+    //?} else {
+    /*@SuppressWarnings("unchecked")
+    private List<RecipeHolder<CuttingRecipe>> collectCuttingRecipes(RecipeManager recipeManager) {
+        return recipeManager.getRecipes().stream()
+                .filter(holder -> holder.value().getType() == ModRecipeTypes.CUT_TYPE.get())
+                .map(holder -> (RecipeHolder<CuttingRecipe>) holder)
+                .toList();
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<RecipeHolder<MixRecipe>> collectMixRecipes(RecipeManager recipeManager) {
+        return recipeManager.getRecipes().stream()
+                .filter(holder -> holder.value().getType() == ModRecipeTypes.MIX_TYPE.get())
+                .map(holder -> (RecipeHolder<MixRecipe>) holder)
+                .toList();
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<RecipeHolder<CookRecipe>> collectGrillRecipes(RecipeManager recipeManager) {
+        return recipeManager.getRecipes().stream()
+                .filter(holder -> holder.value().getType() == ModRecipeTypes.COOK_TYPE.get())
+                .map(holder -> (RecipeHolder<CookRecipe>) holder)
+                .toList();
+    }
+
+    private RecipeHolder<CookRecipe> toCookRecipeHolder(RecipeHolder<CampfireCookingRecipe> holder, HolderLookup.Provider registries) {
+        CampfireCookingRecipe recipe = holder.value();
+        Ingredient ingredient = recipe.input();
+
+        ItemStack inputStack = ItemStack.EMPTY;
+        if (!ingredient.isCustom()) {
+            inputStack = ingredient.getValues().stream()
+                    .findFirst()
+                    .map(ItemStack::new)
+                    .orElse(ItemStack.EMPTY);
+        }
+
+        ItemStack result = recipe.assemble(new SingleRecipeInput(inputStack), registries);
+        int cookingTime = recipe.cookingTime();
+
+        CookRecipe cookRecipe = new CookRecipe(ingredient, result, cookingTime);
+        return new RecipeHolder<>(holder.id(), cookRecipe);
+    }
+    *///?}
 }
 //?}

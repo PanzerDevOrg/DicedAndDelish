@@ -2,32 +2,35 @@ package com.panzer.mods.dice_and_delish.datagen.tags;
 
 import com.panzer.mods.dice_and_delish.DiceAndDelish;
 import com.panzer.mods.dice_and_delish.block.GrillTableBlock;
-import com.panzer.mods.dice_and_delish.crop.HarvestableCropBlock;
-import com.panzer.mods.dice_and_delish.crop.ModCropBlock;
-import com.panzer.mods.dice_and_delish.crop.TallPlantBlock;
-import com.panzer.mods.dice_and_delish.crop.TriplePlantBlock;
-import com.panzer.mods.dice_and_delish.crop.WildCropBlock;
-import com.panzer.mods.dice_and_delish.registry.tags.ModBlockTags;
+import com.panzer.mods.dice_and_delish.crop.*;
 import com.panzer.mods.dice_and_delish.registry.block.ModBlocks;
-
+import com.panzer.mods.dice_and_delish.registry.tags.ModBlockTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 
+//? if <1.21.4
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+
 public class ModBlockTagsProvider extends BlockTagsProvider {
 
+    //? if <1.21.4 {
     public ModBlockTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider,
                                 ExistingFileHelper existingFileHelper) {
         super(output, lookupProvider, DiceAndDelish.MOD_ID, existingFileHelper);
     }
+    //?} else {
+    /*public ModBlockTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+        super(output, lookupProvider, DiceAndDelish.MOD_ID);
+    }
+    *///?}
 
     @Override
     protected void addTags(HolderLookup.@NotNull Provider provider) {

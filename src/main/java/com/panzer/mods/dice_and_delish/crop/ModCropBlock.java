@@ -38,7 +38,7 @@ public abstract class ModCropBlock extends CropBlock {
     };
 
     private final int maxAge;
-    private final VoxelShape[] shapes;
+    protected final VoxelShape[] shapes;
     private final Supplier<? extends ItemLike> seedSupplier;
 
     protected ModCropBlock(BlockBehaviour.Properties properties, int maxAge, VoxelShape[] shapes,

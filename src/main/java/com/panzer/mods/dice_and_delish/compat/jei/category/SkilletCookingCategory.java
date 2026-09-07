@@ -1,6 +1,6 @@
 package com.panzer.mods.dice_and_delish.compat.jei.category;
 
-//? if <1.21.2 {
+//? <1.21.2 || >1.21.3 {
 import com.panzer.mods.dice_and_delish.DiceAndDelish;
 import com.panzer.mods.dice_and_delish.recipe.cook.CookRecipe;
 import com.panzer.mods.dice_and_delish.recipe.mix.MixRecipe;
@@ -11,9 +11,9 @@ import mezz.jei.api.gui.placement.VerticalAlignment;
 import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.AbstractRecipeCategory;
 import net.minecraft.network.chat.Component;
+
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -21,11 +21,29 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+//? <1.21.4 {
+import mezz.jei.api.recipe.RecipeType;
+//?} else {
+/*import mezz.jei.api.constants.VanillaTypes;
+import mezz.jei.api.recipe.types.IRecipeType;
+import net.minecraft.resources.ResourceLocation;
+*///?}
+
 public final class SkilletCookingCategory extends AbstractRecipeCategory<RecipeHolder<MixRecipe>> {
 
+    //? if <1.21.4 {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static final RecipeType<RecipeHolder<MixRecipe>> RECIPE_TYPE =
             (RecipeType) RecipeType.create(DiceAndDelish.MOD_ID, "skillet_cooking", RecipeHolder.class);
+
+    //?} else {
+    /*@SuppressWarnings({"unchecked", "rawtypes"})
+    public static final IRecipeType<RecipeHolder<MixRecipe>> RECIPE_TYPE =
+            IRecipeType.create(
+                    ResourceLocation.fromNamespaceAndPath(DiceAndDelish.MOD_ID, "skillet_cooking"),
+                    (Class) RecipeHolder.class
+            );
+    *///?}
 
     private static final int MAX_DISPLAYED_INPUTS = 4;
 
@@ -56,14 +74,27 @@ public final class SkilletCookingCategory extends AbstractRecipeCategory<RecipeH
 
         int shown = Math.min(inputs.size(), MAX_DISPLAYED_INPUTS);
         for (int i = 0; i < shown; i++) {
+            //? <1.21.4 {
             builder.addInputSlot(INPUT_SLOT_X[i], INPUT_SLOT_Y[i])
                     .setStandardSlotBackground()
                     .addIngredients(inputs.get(i));
+            //?} else {
+            /*builder.addInputSlot(INPUT_SLOT_X[i], INPUT_SLOT_Y[i])
+                    .setStandardSlotBackground()
+                    .add(inputs.get(i));
+            *///?}
         }
 
+        //? if <1.21.4 {
         builder.addOutputSlot(OUTPUT_X, OUTPUT_Y)
                 .setOutputSlotBackground()
                 .addItemStack(recipe.result());
+
+        //?} else {
+        /*builder.addOutputSlot(OUTPUT_X, OUTPUT_Y)
+                .setOutputSlotBackground()
+                .add(VanillaTypes.ITEM_STACK, recipe.result());
+        *///?}
     }
 
     @Override

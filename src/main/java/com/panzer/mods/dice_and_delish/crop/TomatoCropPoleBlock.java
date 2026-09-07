@@ -30,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Supplier;
 
 @SuppressWarnings("CommentedOutCode")
-public final class TomatoCropPoleBlock extends HarvestableCropBlock {
+public final class TomatoCropPoleBlock extends HarvestableCropBlock implements TallPlantGrowth {
 
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
 
@@ -77,6 +77,11 @@ public final class TomatoCropPoleBlock extends HarvestableCropBlock {
     }
 
     @Override
+    public @NotNull EnumProperty<DoubleBlockHalf> halfProperty() {
+        return HALF;
+    }
+
+    @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(BlockStateProperties.AGE_5, HALF);
     }
@@ -87,6 +92,7 @@ public final class TomatoCropPoleBlock extends HarvestableCropBlock {
                 .setValue(HALF, DoubleBlockHalf.LOWER);
     }
 
+    @SuppressWarnings("unused")
     public static BlockState createUpper(TomatoCropPoleBlock block, int age) {
         return block.defaultBlockState()
                 .setValue(BlockStateProperties.AGE_5, age)
@@ -228,24 +234,8 @@ public final class TomatoCropPoleBlock extends HarvestableCropBlock {
 
     static boolean tryGrowOrSyncUpper(@NotNull TomatoCropPoleBlock poleBlock, @NotNull Level level, @NotNull BlockPos lowerPos,
                                       @NotNull IntegerProperty ageProperty, int nextAge) {
-        if (nextAge < UPPER_AGE_THRESHOLD) {
-            return true;
-        }
-
-        BlockPos upperPos = lowerPos.above();
-        BlockState upperState = level.getBlockState(upperPos);
-
-        if (upperState.is(poleBlock) && upperState.getValue(HALF) == DoubleBlockHalf.UPPER) {
-            level.setBlock(upperPos, upperState.setValue(ageProperty, nextAge), 2);
-            return true;
-        }
-
-        if (!upperState.canBeReplaced()) {
-            return false;
-        }
-
-        level.setBlock(upperPos, TomatoCropPoleBlock.createUpper(poleBlock, nextAge), 3);
-        return true;
+        return poleBlock.resolveTallGrowth(poleBlock, level, lowerPos, ageProperty, nextAge,
+                UPPER_AGE_THRESHOLD, block -> poleBlock.defaultBlockState());
     }
 
     @Override

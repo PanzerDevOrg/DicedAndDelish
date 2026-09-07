@@ -29,7 +29,7 @@ public abstract class TallPlantBlock extends BushBlock implements TallPlantHalve
 
     protected TallPlantBlock(BlockBehaviour.Properties properties, Function<BlockBehaviour.Properties, ? extends TallPlantBlock> factory) {
         super(properties);
-        this.codec = simpleCodec(factory::apply);
+        this.codec = simpleCodec(factory);
         this.registerDefaultState(applyLowerDefaults(this.stateDefinition.any().setValue(HALF, DoubleBlockHalf.LOWER)));
     }
 

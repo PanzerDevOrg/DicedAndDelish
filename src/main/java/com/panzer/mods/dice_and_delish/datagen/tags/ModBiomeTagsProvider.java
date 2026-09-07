@@ -10,17 +10,26 @@ import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.biome.Biome;
 import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
+//? if <1.21.4 {
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import org.jetbrains.annotations.Nullable;
+//?}
+
 public class ModBiomeTagsProvider extends TagsProvider<Biome> {
 
+    //? <1.21.4 {
     public ModBiomeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, @Nullable ExistingFileHelper existingFileHelper) {
         super(output, Registries.BIOME, lookupProvider, DiceAndDelish.MOD_ID, existingFileHelper);
     }
+    //?} else {
+    /*public ModBiomeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+        super(output, Registries.BIOME, lookupProvider, DiceAndDelish.MOD_ID);
+    }
+    *///?}
 
     @Override
     protected void addTags(HolderLookup.@NotNull Provider provider) {

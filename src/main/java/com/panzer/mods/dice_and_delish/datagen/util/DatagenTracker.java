@@ -1,11 +1,12 @@
 package com.panzer.mods.dice_and_delish.datagen.util;
 
+//? <1.21.4 {
 import com.panzer.mods.dice_and_delish.DiceAndDelish;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
-public class DatagenUtils {
+public class DatagenTracker {
 
     public static void trackTexture(ExistingFileHelper helper, String path) {
         String cleanPath = path.endsWith(".png") ? path.substring(0, path.length() - 4) : path;
@@ -37,3 +38,4 @@ public class DatagenUtils {
         );
     }
 }
+//?}

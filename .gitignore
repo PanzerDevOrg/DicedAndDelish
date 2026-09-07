@@ -1,24 +1,12 @@
 .gradle/
 build/
-!buildSrc/src/main/kotlin/dev/panzer/build/
 run/
-*.iml
-.kotlin/
-generated/
+.idea/
 versions/
+
 stonecutter.properties.toml
 
-*.history
 *.bbmodel
 
-*.config.json
-*.xml
-
-.idea/*
-!.idea/runConfigurations/
-!.idea/runConfigurations/*.xml
-
-*.tags.*/
-*.history.*
-*ignore
-!.gitignore
+/*.config.json
+/*.xml

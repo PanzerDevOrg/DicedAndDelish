@@ -1,25 +1,34 @@
 package com.panzer.mods.dice_and_delish.datagen.sound;
 
 import com.panzer.mods.dice_and_delish.DiceAndDelish;
-import com.panzer.mods.dice_and_delish.datagen.util.DatagenUtils;
 import com.panzer.mods.dice_and_delish.registry.sound.ModSounds;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.common.data.SoundDefinition;
 import net.neoforged.neoforge.common.data.SoundDefinitionsProvider;
 
 import java.util.function.Supplier;
 
+//? <1.21.4 {
+import com.panzer.mods.dice_and_delish.datagen.util.DatagenTracker;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+//?}
+
 public class ModSoundDefinitionsProvider extends SoundDefinitionsProvider {
 
+    //? <1.21.4 {
     private final ExistingFileHelper existingFileHelper;
 
     public ModSoundDefinitionsProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
         super(output, DiceAndDelish.MOD_ID, existingFileHelper);
         this.existingFileHelper = existingFileHelper;
     }
+    //?} else {
+    /*public ModSoundDefinitionsProvider(PackOutput output) {
+        super(output, DiceAndDelish.MOD_ID);
+    }
+    *///?}
 
     @Override
     public void registerSounds() {
@@ -41,8 +50,9 @@ public class ModSoundDefinitionsProvider extends SoundDefinitionsProvider {
     private void addSound(Supplier<SoundEvent> soundEvent, String path, String subtitleKey, boolean isLooping) {
         boolean shouldPreload = !isLooping;
 
-        DatagenUtils.trackSound(this.existingFileHelper, path);
-
+        //? <1.21.4 {
+        DatagenTracker.trackSound(this.existingFileHelper, path);
+        //?}
         add(soundEvent, SoundDefinition.definition()
                 .with(sound(id(path)).preload(shouldPreload))
                 .subtitle("subtitles." + subtitleKey));

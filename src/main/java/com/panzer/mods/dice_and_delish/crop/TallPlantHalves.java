@@ -12,15 +12,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
-public interface TallPlantHalves {
-
-    EnumProperty<DoubleBlockHalf> halfProperty();
+public interface TallPlantHalves extends TallPlantGrowth {
 
     @NotNull BlockState lowerStateForPlacement(@NotNull BlockPlaceContext context);
 
@@ -44,11 +41,6 @@ public interface TallPlantHalves {
                                       @SuppressWarnings("unused") @Nullable LivingEntity placer, @SuppressWarnings("unused") @NotNull ItemStack stack) {
         BlockPos abovePos = pos.above();
         level.setBlock(abovePos, upperStateForPlacedBy(level, pos, state), 3);
-    }
-
-    default boolean upperHalfCanSurvive(@NotNull Block self, @NotNull LevelReader level, @NotNull BlockPos pos) {
-        BlockState below = level.getBlockState(pos.below());
-        return below.is(self) && below.getValue(halfProperty()) == DoubleBlockHalf.LOWER;
     }
 
     default @NotNull BlockState tallPlantUpdateShape(@NotNull Block self, @NotNull BlockState state, @NotNull Direction direction,

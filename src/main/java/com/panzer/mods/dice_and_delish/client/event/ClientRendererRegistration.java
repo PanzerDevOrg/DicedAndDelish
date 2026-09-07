@@ -16,11 +16,19 @@ import net.neoforged.neoforge.client.event.ModelEvent;
 @EventBusSubscriber(modid = DiceAndDelish.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class ClientRendererRegistration {
 
+    //? <1.21.4 {
     public static final ModelResourceLocation PROGRESS_TORTILLA_MODEL_LOC =
             ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(DiceAndDelish.MOD_ID, "block/display/progress_tortilla"));
 
     public static final ModelResourceLocation FINISHED_TORTILLA_MODEL_LOC =
             ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(DiceAndDelish.MOD_ID, "block/display/finished_tortilla"));
+    //?} else {
+    /*public static final ModelResourceLocation PROGRESS_TORTILLA_MODEL_LOC =
+            new ModelResourceLocation(ResourceLocation.fromNamespaceAndPath(DiceAndDelish.MOD_ID, "block/display/progress_tortilla"), "progress_tortilla");
+
+    public static final ModelResourceLocation FINISHED_TORTILLA_MODEL_LOC =
+            new ModelResourceLocation(ResourceLocation.fromNamespaceAndPath(DiceAndDelish.MOD_ID, "block/display/finished_tortilla"), "finished_tortilla");
+    *///?}
 
     private ClientRendererRegistration() {
     }
@@ -33,7 +41,12 @@ public final class ClientRendererRegistration {
 
     @SubscribeEvent
     public static void onRegisterAdditionalModels(ModelEvent.RegisterAdditional event) {
+        //? <1.21.4 {
         event.register(PROGRESS_TORTILLA_MODEL_LOC);
         event.register(FINISHED_TORTILLA_MODEL_LOC);
+        //?} else {
+        /*event.register(PROGRESS_TORTILLA_MODEL_LOC.id());
+        event.register(FINISHED_TORTILLA_MODEL_LOC.id());
+        *///?}
     }
 }

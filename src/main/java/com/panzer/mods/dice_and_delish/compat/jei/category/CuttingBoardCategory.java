@@ -1,6 +1,6 @@
 package com.panzer.mods.dice_and_delish.compat.jei.category;
 
-//? if <1.21.2 {
+//? <1.21.2 || >1.21.3 {
 import com.panzer.mods.dice_and_delish.DiceAndDelish;
 import com.panzer.mods.dice_and_delish.recipe.cutting.CuttingRecipe;
 import com.panzer.mods.dice_and_delish.registry.item.ModItems;
@@ -9,7 +9,7 @@ import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.AbstractRecipeCategory;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -21,11 +21,28 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+//? <1.21.4 {
+import mezz.jei.api.recipe.RecipeType;
+ //?} else {
+/*import mezz.jei.api.recipe.types.IRecipeType;
+import net.minecraft.resources.ResourceLocation;
+*///?}
+
 public final class CuttingBoardCategory extends AbstractRecipeCategory<RecipeHolder<CuttingRecipe>> {
 
+    //? if <1.21.4 {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static final RecipeType<RecipeHolder<CuttingRecipe>> RECIPE_TYPE =
             (RecipeType) RecipeType.create(DiceAndDelish.MOD_ID, "cutting_board", RecipeHolder.class);
+
+    //?} else {
+    /*@SuppressWarnings({"unchecked", "rawtypes"})
+    public static final IRecipeType<RecipeHolder<CuttingRecipe>> RECIPE_TYPE =
+            IRecipeType.create(
+                    ResourceLocation.fromNamespaceAndPath(DiceAndDelish.MOD_ID, "cutting_board"),
+                    (Class) RecipeHolder.class
+            );
+    *///?}
 
     private static final int WIDTH = 82;
     private static final int HEIGHT = 44;
@@ -52,7 +69,7 @@ public final class CuttingBoardCategory extends AbstractRecipeCategory<RecipeHol
     @Override
     public void setRecipe(@NotNull IRecipeLayoutBuilder builder, @NotNull RecipeHolder<CuttingRecipe> recipeHolder, @NotNull IFocusGroup focuses) {
         CuttingRecipe recipe = recipeHolder.value();
-
+        //? <1.21.4 {
         builder.addInputSlot(INPUT_SLOT_X, INPUT_SLOT_Y)
                 .setStandardSlotBackground()
                 .addIngredients(recipe.input());
@@ -61,9 +78,22 @@ public final class CuttingBoardCategory extends AbstractRecipeCategory<RecipeHol
                 .setOutputSlotBackground()
                 .addItemStack(recipe.result());
 
-        builder.addSlot(mezz.jei.api.recipe.RecipeIngredientRole.CATALYST, KNIFE_SLOT_X, KNIFE_SLOT_Y)
+        builder.addSlot(RecipeIngredientRole.CATALYST, KNIFE_SLOT_X, KNIFE_SLOT_Y)
                 .setStandardSlotBackground()
                 .addIngredients(VanillaTypes.ITEM_STACK, allKnives());
+        //?} else {
+        /*builder.addInputSlot(INPUT_SLOT_X, INPUT_SLOT_Y)
+                .setStandardSlotBackground()
+                .add(recipe.input());
+
+        builder.addOutputSlot(OUTPUT_SLOT_X, OUTPUT_SLOT_Y)
+                .setOutputSlotBackground()
+                .add(recipe.result());
+
+        builder.addSlot(RecipeIngredientRole.CRAFTING_STATION, KNIFE_SLOT_X, KNIFE_SLOT_Y)
+                .setStandardSlotBackground()
+                .addIngredients(VanillaTypes.ITEM_STACK, allKnives());
+        *///?}
     }
 
     private List<ItemStack> allKnives() {
