@@ -14,8 +14,12 @@ banner = "banner.png"
 
 [stonecutter]
 profile = "legacy"
-extra_versions = ["1.21.5"]
+#extra_versions = ["1.21.5"]
+exclude_versions = ["1.21.4"]
 vcs_version = "1.21.1"
+
+[stonecutter.profiles.legacy]
+versions = ["1.21.1", "1.21.3"]
 
 [integrations]
 jade_id = "jade"
@@ -52,14 +56,14 @@ jei_version_range = "[0,)"
 jade_version = "16.0.1+neoforge"
 jade_version_range = "[16,17)"
 
-["1.21.4"]
-minecraft_version = "1.21.4"
-minecraft_version_range = "[1.21.4,1.21.5)"
-neo_version = "21.4.157"
-neo_version_range = "[21.4,21.5)"
-parchment_mappings_version = "2025.03.23"
-
-jei_version = "20.0.0.4"
-jei_version_range = "[20.0,20.1)"
-jade_version = "17.3.0+neoforge"
-jade_version_range = "[17,18)"
+#["1.21.4"]
+#minecraft_version = "1.21.4"
+#minecraft_version_range = "[1.21.4,1.21.5)"
+#neo_version = "21.4.157"
+#neo_version_range = "[21.4,21.5)"
+#parchment_mappings_version = "2025.03.23"
+#
+#jei_version = "20.0.0.4"
+#jei_version_range = "[20.0,20.1)"
+#jade_version = "17.3.0+neoforge"
+#jade_version_range = "[17,18)"

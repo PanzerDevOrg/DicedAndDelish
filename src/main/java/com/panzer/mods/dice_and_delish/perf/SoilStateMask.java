@@ -1,7 +1,7 @@
 package com.panzer.mods.dice_and_delish.perf;
 
 /**
- * Bitfield layout (LSB &rarr; MSB, 16 bits total):
+ * Bitfield layout (LSB -> MSB, 16 bits total):
  *
  * <table border="1" cellpadding="5" cellspacing="0">
  *   <thead>
@@ -18,17 +18,17 @@ package com.panzer.mods.dice_and_delish.perf;
  *       <td><code>1</code> = nutrients &ge; threshold, mirrors <code>isNourished()</code> for <i>O(1)</i> reads.</td>
  *     </tr>
  *     <tr>
- *       <td align="center"><b>1–4</b></td>
+ *       <td align="center"><b>1-4</b></td>
  *       <td><code>NUTRIENTS</code></td>
- *       <td>4 bits (0–15). Valid range: 0–9 (per <code>MAX_NUTRIENT_THRESHOLD</code>).</td>
+ *       <td>4 bits (0-15). Valid range: 0-9 (per <code>MAX_NUTRIENT_THRESHOLD</code>).</td>
  *     </tr>
  *     <tr>
- *       <td align="center"><b>5–8</b></td>
+ *       <td align="center"><b>5-8</b></td>
  *       <td><code>THRESHOLD</code></td>
- *       <td>4 bits (0–15). Valid range: 0 or 3–9 (per <code>MIN/MAX_NUTRIENT_THRESHOLD</code>).</td>
+ *       <td>4 bits (0-15). Valid range: 0 or 3-9 (per <code>MIN/MAX_NUTRIENT_THRESHOLD</code>).</td>
  *     </tr>
  *     <tr>
- *       <td align="center"><b>9–15</b></td>
+ *       <td align="center"><b>9-15</b></td>
  *       <td><code>UNUSED</code></td>
  *       <td>Reserved for future soil-tile state (moisture tier, etc.).</td>
  *     </tr>

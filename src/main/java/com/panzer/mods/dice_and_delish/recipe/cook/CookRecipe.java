@@ -17,7 +17,6 @@ import org.jetbrains.annotations.NotNull;
 //? if >=1.21.2 {
 //?}
 
-@SuppressWarnings("CommentedOutCode")
 public record CookRecipe(Ingredient input, ItemStack result, int cookingTime) implements Recipe<CookRecipeInput> {
 
     public static final int DEFAULT_COOKING_TIME = 200;

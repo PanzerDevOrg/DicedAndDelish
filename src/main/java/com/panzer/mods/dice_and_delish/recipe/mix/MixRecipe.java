@@ -36,15 +36,16 @@ public record MixRecipe(List<Ingredient> inputs, ItemStack result) implements Re
         if (size != inputs.size()) {
             return null;
         }
-        boolean[] consumed = new boolean[size];
+        int consumedMask = 0;
         int[] assignment = new int[inputs.size()];
 
         for (int i = 0; i < inputs.size(); i++) {
             Ingredient ingredient = inputs.get(i);
             int match = -1;
             for (int j = 0; j < size; j++) {
-                if (!consumed[j] && ingredient.test(recipeInput.getItem(j))) {
-                    consumed[j] = true;
+                int bit = 1 << j;
+                if ((consumedMask & bit) == 0 && ingredient.test(recipeInput.getItem(j))) {
+                    consumedMask |= bit;
                     match = j;
                     break;
                 }

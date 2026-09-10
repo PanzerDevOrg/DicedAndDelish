@@ -24,7 +24,7 @@ public record FlatItemModel(BakedModel baseModel) implements ItemModel {
                 : baseModel;
 
         ItemStackRenderState.LayerRenderState layerState = renderState.newLayer();
-        layerState.setupBlockModel(finalModel, net.minecraft.client.renderer.RenderType.cutout()); // ajustar RenderType según tu caso
+        layerState.setupBlockModel(finalModel, net.minecraft.client.renderer.RenderType.cutout());
     }
 }
 *///?}

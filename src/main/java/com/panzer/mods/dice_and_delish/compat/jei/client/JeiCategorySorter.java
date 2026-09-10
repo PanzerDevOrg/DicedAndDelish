@@ -24,6 +24,8 @@ public final class JeiCategorySorter {
     private JeiCategorySorter() {
     }
 
+    //! REMOVAL
+    @SuppressWarnings("unused")
     public static void forceCategoriesOrder() {
         try {
             File gameDir = Minecraft.getInstance().gameDirectory;

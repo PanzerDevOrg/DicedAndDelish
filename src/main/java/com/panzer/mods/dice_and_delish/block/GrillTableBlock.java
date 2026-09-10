@@ -282,11 +282,6 @@ public class GrillTableBlock extends BaseEntityBlock implements SimpleWaterlogge
                     pos.getZ() + 0.5 + (random.nextDouble() - 0.5) * 0.4,
                     0.0, 0.05, 0.0);
         }
-
-        if (level.getBlockEntity(pos) instanceof GrillTableBlockEntity grillTableBlockEntity && grillTableBlockEntity.isCooking()) {
-            level.playLocalSound(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, ModSounds.GRILL_SIZZLE.get(), SoundSource.BLOCKS,
-                    RandomUtil.jitter(random, 0.4F, 0.4F), RandomUtil.jitter(random, 0.8F, 0.4F), false);
-        }
     }
 
     @Override

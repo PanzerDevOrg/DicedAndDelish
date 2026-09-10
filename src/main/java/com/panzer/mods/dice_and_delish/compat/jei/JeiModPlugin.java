@@ -30,6 +30,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,10 @@ import mezz.jei.api.ingredients.subtypes.UidContext;
 @SuppressWarnings("unused")
 public class JeiModPlugin implements IModPlugin {
     public static final String EMPTY_SUBTYPE = "";
+
+    @Nullable
+    private static IJeiRuntime activeRuntime;
+    private static boolean recipesRegisteredForRuntime = false;
 
     private static final ResourceLocation PLUGIN_ID =
             ResourceLocation.fromNamespaceAndPath(DiceAndDelish.MOD_ID, "jei_plugin");
@@ -93,12 +98,10 @@ public class JeiModPlugin implements IModPlugin {
     @Override
     public void registerRecipeCatalysts(@NotNull IRecipeCatalystRegistration registration) {
         //? <1.21.4 {
-        registration.addRecipeCatalyst(
+        registration.addRecipeCatalysts(
+                GrillCookingCategory.RECIPE_TYPE,
                 new ItemStack(ModItems.GRILL_TABLE.get()),
-                GrillCookingCategory.RECIPE_TYPE);
-        registration.addRecipeCatalyst(
-                new ItemStack(ModItems.GRILL_TABLE_SOUL.get()),
-                GrillCookingCategory.RECIPE_TYPE);
+                new ItemStack(ModItems.GRILL_TABLE_SOUL.get()));
         registration.addRecipeCatalyst(
                 new ItemStack(ModItems.CUTTING_BOARD.get()),
                 CuttingBoardCategory.RECIPE_TYPE);
@@ -162,6 +165,29 @@ public class JeiModPlugin implements IModPlugin {
         List<ItemStack> filledCups = IronCupContent.allFilledStacks(ModItems.IRON_CUP.get());
         ingredientManager.addIngredientsAtRuntime(VanillaTypes.ITEM_STACK, filledCups);
 
+        activeRuntime = jeiRuntime;
+        registerLevelDependentRecipes(jeiRuntime);
+    }
+
+    @Override
+    public void onRuntimeUnavailable() {
+        activeRuntime = null;
+        recipesRegisteredForRuntime = false;
+    }
+
+    public static void onPlayerLoggedIn() {
+        IJeiRuntime jeiRuntime = activeRuntime;
+        if (jeiRuntime != null) {
+            recipesRegisteredForRuntime = false;
+            registerLevelDependentRecipes(jeiRuntime);
+        }
+    }
+
+    private static void registerLevelDependentRecipes(IJeiRuntime jeiRuntime) {
+        if (recipesRegisteredForRuntime) {
+            return;
+        }
+
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) {
             return;
@@ -171,7 +197,7 @@ public class JeiModPlugin implements IModPlugin {
         RecipeManager recipeManager = level.getRecipeManager();
         //?} else {
         /*RecipeManager recipeManager = Objects.requireNonNull(level.getServer()).getRecipeManager();
-        *///?}
+         *///?}
         HolderLookup.Provider registries = level.registryAccess();
 
         List<RecipeHolder<CookRecipe>> grillRecipes = collectGrillRecipes(recipeManager);
@@ -196,22 +222,23 @@ public class JeiModPlugin implements IModPlugin {
         jeiRuntime.getRecipeManager().addRecipes(GrillCookingCategory.RECIPE_TYPE, mergedRecipes);
         jeiRuntime.getRecipeManager().addRecipes(CuttingBoardCategory.RECIPE_TYPE, collectCuttingRecipes(recipeManager));
         jeiRuntime.getRecipeManager().addRecipes(SkilletCookingCategory.RECIPE_TYPE, collectMixRecipes(recipeManager));
+        recipesRegisteredForRuntime = true;
     }
 
     //? <1.21.4 {
-    private List<RecipeHolder<CuttingRecipe>> collectCuttingRecipes(RecipeManager recipeManager) {
+    private static List<RecipeHolder<CuttingRecipe>> collectCuttingRecipes(RecipeManager recipeManager) {
         return recipeManager.getAllRecipesFor(ModRecipeTypes.CUT_TYPE.get());
     }
 
-    private List<RecipeHolder<MixRecipe>> collectMixRecipes(RecipeManager recipeManager) {
+    private static List<RecipeHolder<MixRecipe>> collectMixRecipes(RecipeManager recipeManager) {
         return recipeManager.getAllRecipesFor(ModRecipeTypes.MIX_TYPE.get());
     }
 
-    private List<RecipeHolder<CookRecipe>> collectGrillRecipes(RecipeManager recipeManager) {
+    private static List<RecipeHolder<CookRecipe>> collectGrillRecipes(RecipeManager recipeManager) {
         return recipeManager.getAllRecipesFor(ModRecipeTypes.COOK_TYPE.get());
     }
 
-    private RecipeHolder<CookRecipe> toCookRecipeHolder(RecipeHolder<CampfireCookingRecipe> holder, HolderLookup.Provider registries) {
+    private static RecipeHolder<CookRecipe> toCookRecipeHolder(RecipeHolder<CampfireCookingRecipe> holder, HolderLookup.Provider registries) {
         CampfireCookingRecipe recipe = holder.value();
         CookRecipe cookRecipe = new CookRecipe(
                 recipe.getIngredients().getFirst(),

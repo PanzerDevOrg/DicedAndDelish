@@ -52,12 +52,10 @@ public final class ModCreativeTabs {
                         output.accept(ModItems.TOMATO);
                         output.accept(ModItems.LETTUCE);
                         output.accept(ModItems.PURPLE_ONION);
-                        output.accept(ModItems.RICE);
 
                         // Ingredients / Cut
                         output.accept(ModItems.CUT_POTATO);
                         output.accept(ModItems.CUT_PURPLE_ONION);
-                        output.accept(ModItems.RAW_CHICKEN_PIECES);
 
                         // Iron Cups
                         output.accept(ModItems.IRON_CUP);
@@ -69,18 +67,20 @@ public final class ModCreativeTabs {
                         // Foods
                         output.accept(ModItems.CHEESE);
                         output.accept(ModItems.CHEESE_SLICE);
+                        output.accept(ModItems.RAW_CHICKEN_PIECES);
                         output.accept(ModItems.COOKED_CHICKEN_PIECES);
                         output.accept(ModItems.FRIED_EGG);
                         output.accept(ModItems.RAW_SANDWICH_BREAD);
-                        output.accept(ModItems.TOASTED_SANDWICH_BREAD);
                         output.accept(ModItems.CHEESE_RAW_SANDWICH);
+                        output.accept(ModItems.TOASTED_SANDWICH_BREAD);
                         output.accept(ModItems.CHEESE_TOASTED_SANDWICH);
                         output.accept(ModItems.GRILLED_CHEESE);
                         output.accept(ModItems.TORTILLA);
                         output.accept(ModItems.POTATO_TORTILLA);
                         output.accept(ModItems.PURPLE_ONION_TORTILLA);
-                        output.accept(ModItems.COOKED_RICE_BOWL);
+                        output.accept(ModItems.RICE);
                         output.accept(ModItems.RICE_BOWL);
+                        output.accept(ModItems.COOKED_RICE_BOWL);
                         output.accept(ModItems.SALAD);
 
                         // Knifes

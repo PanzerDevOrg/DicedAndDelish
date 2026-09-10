@@ -25,7 +25,9 @@ public class ModEsEsLanguageProvider extends ModLanguageProvider {
         add(ModBlocks.FERTILE_FARMLAND, "Tierra Fértil");
         add(ModBlocks.ORGANIC_SOIL, "Tierra Orgánica");
         add(ModBlocks.CUTTING_BOARD, "Tabla de Cortar");
-        add(ModBlocks.SKILLET, "Sartén");
+
+        addHotBlockItem(ModBlocks.SKILLET, "Sartén", "Sartén Caliente");
+        addSkilletTooltip("hot_burn", "Quema a las entidades al golpearlos");
 
         // Cultivos y Semillas
         addWildCropPrefix("%s Silvestre");
@@ -78,7 +80,7 @@ public class ModEsEsLanguageProvider extends ModLanguageProvider {
 
         // Subtítulos
         addSubtitle(ModSounds.GRILL_PLACE_FOOD, "Asando comida");
-        addSubtitle(ModSounds.SKILLET_SIZZLE_LOOP, "Chisporroteo de la sartén");
+        addSubtitle(ModSounds.SKILLET_SIZZLE, "Chisporroteo de la sartén");
         addSubtitle(ModSounds.SKILLET_CLANG, "Golpe metálico de la sartén");
 
         // Integración con Jade

@@ -26,7 +26,9 @@ public class ModEnUsLanguageProvider extends ModLanguageProvider {
         add(ModBlocks.FERTILE_FARMLAND, "Fertile Farmland");
         add(ModBlocks.ORGANIC_SOIL, "Organic Soil");
         add(ModBlocks.CUTTING_BOARD, "Cutting Board");
-        add(ModBlocks.SKILLET, "Skillet");
+
+        addHotBlockItem(ModBlocks.SKILLET, "Skillet", "Hot Skillet");
+        addSkilletTooltip("hot_burn", "Burn entities when hitting them");
 
         // Crops & Knives Patterns
         addWildCropPrefix("Wild %s");
@@ -79,7 +81,7 @@ public class ModEnUsLanguageProvider extends ModLanguageProvider {
 
         // Subtitles
         addSubtitle(ModSounds.GRILL_PLACE_FOOD, "Grilling food");
-        addSubtitle(ModSounds.SKILLET_SIZZLE_LOOP, "Skillet sizzling");
+        addSubtitle(ModSounds.SKILLET_SIZZLE, "Skillet sizzling");
         addSubtitle(ModSounds.SKILLET_CLANG, "Skillet clangs");
 
         // Jade Integration

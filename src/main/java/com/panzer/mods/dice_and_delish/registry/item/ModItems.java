@@ -31,7 +31,6 @@ import net.minecraft.world.item.ToolMaterial;
 import java.util.List;
 *///?}
 
-@SuppressWarnings("CommentedOutCode")
 public final class ModItems {
 
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(DiceAndDelish.MOD_ID);

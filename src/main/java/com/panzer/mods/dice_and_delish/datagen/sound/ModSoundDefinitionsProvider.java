@@ -34,10 +34,12 @@ public class ModSoundDefinitionsProvider extends SoundDefinitionsProvider {
     public void registerSounds() {
         addSound(ModSounds.GRILL_PLACE_FOOD, "block/grill/place_food", "block.dice_and_delish.grill.place_food");
 
-        addLoopingSound(ModSounds.GRILL_GRILLING, "block/grill/grilling", "block.dice_and_delish.grill.grilling");
+        addSizzleLoopingSound(ModSounds.GRILL_SIZZLE, "block.dice_and_delish.grill.sizzle");
+        addSizzleLoopingSound(ModSounds.SKILLET_SIZZLE, "block.dice_and_delish.skillet.sizzle_loop");
+
+        addSound(ModSounds.SKILLET_CLANG, "item/skillet/clang", "item.dice_and_delish.skillet.clang");
     }
 
-    @SuppressWarnings("SameParameterValue")
     private void addSound(Supplier<SoundEvent> soundEvent, String path, String subtitleKey) {
         addSound(soundEvent, path, subtitleKey, false);
     }
@@ -45,6 +47,10 @@ public class ModSoundDefinitionsProvider extends SoundDefinitionsProvider {
     @SuppressWarnings("SameParameterValue")
     private void addLoopingSound(Supplier<SoundEvent> soundEvent, String path, String subtitleKey) {
         addSound(soundEvent, path, subtitleKey, true);
+    }
+
+    private void addSizzleLoopingSound(Supplier<SoundEvent> soundEvent, String subtitleKey) {
+        addLoopingSound(soundEvent, "block/cooking/sizzle", subtitleKey);
     }
 
     private void addSound(Supplier<SoundEvent> soundEvent, String path, String subtitleKey, boolean isLooping) {

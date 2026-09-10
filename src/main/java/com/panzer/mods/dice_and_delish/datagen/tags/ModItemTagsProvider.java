@@ -88,6 +88,10 @@ public class ModItemTagsProvider extends ItemTagsProvider {
                 ModItems.POTATO_TORTILLA.get(),
                 ModItems.PURPLE_ONION_TORTILLA.get()
         );
+        tag(ModItemTags.CUT_INGREDIENTS).add(
+                ModItems.CUT_POTATO.get(),
+                ModItems.CUT_PURPLE_ONION.get()
+        );
 
         tag(ModTiers.REPAIRS_OBSIDIAN_KNIFE).add(Items.OBSIDIAN);
     }

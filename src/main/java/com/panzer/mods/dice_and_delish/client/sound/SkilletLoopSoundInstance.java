@@ -12,7 +12,7 @@ public class SkilletLoopSoundInstance extends LoopingBlockSoundInstance<SkilletB
     private static final float VOLUME = 0.4F;
 
     public SkilletLoopSoundInstance(Level level, BlockPos pos) {
-        super(ModSounds.SKILLET_SIZZLE_LOOP, level, pos, Y_OFFSET, VOLUME, SkilletBlockEntity.class,
+        super(ModSounds.SKILLET_SIZZLE, level, pos, Y_OFFSET, VOLUME, SkilletBlockEntity.class,
                 skillet -> skillet.getBlockState().getValue(SkilletBlock.LIT) && skillet.isCooking());
     }
 }

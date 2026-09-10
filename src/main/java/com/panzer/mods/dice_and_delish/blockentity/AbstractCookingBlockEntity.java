@@ -263,8 +263,9 @@ public abstract class AbstractCookingBlockEntity extends BlockEntity implements 
 
     @Override
     public void setItem(int slot, ItemStack stack) {
-        if (stack.getCount() > getMaxStackSize()) {
-            stack.setCount(getMaxStackSize());
+        int cap = stack.getMaxStackSize();
+        if (stack.getCount() > cap) {
+            stack.setCount(cap);
         }
         boolean wasEmpty = items.get(slot).isEmpty();
         items.set(slot, stack);

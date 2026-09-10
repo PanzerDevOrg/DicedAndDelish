@@ -1,14 +1,14 @@
 package com.panzer.mods.dice_and_delish.block;
 
+import com.mojang.serialization.MapCodec;
 import com.panzer.mods.dice_and_delish.blockentity.SkilletBlockEntity;
 import com.panzer.mods.dice_and_delish.client.sound.SkilletLoopSoundManager;
 import com.panzer.mods.dice_and_delish.item.IronCupItem;
 import com.panzer.mods.dice_and_delish.item.SkilletBlockItem;
 import com.panzer.mods.dice_and_delish.item.component.IronCupContent;
-import com.panzer.mods.dice_and_delish.registry.tags.ModBlockTags;
 import com.panzer.mods.dice_and_delish.registry.blockentity.ModBlockEntities;
 import com.panzer.mods.dice_and_delish.registry.data.ModCustomStats;
-import com.mojang.serialization.MapCodec;
+import com.panzer.mods.dice_and_delish.registry.tags.ModBlockTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -24,7 +24,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.*;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -40,6 +43,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.level.*;
 
 //? if >=1.21.2 {
 /*import net.minecraft.world.level.redstone.Orientation;
@@ -49,7 +53,6 @@ import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 //?}
 
-@SuppressWarnings("CommentedOutCode")
 public class SkilletBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
 
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
@@ -111,12 +114,24 @@ public class SkilletBlock extends BaseEntityBlock implements SimpleWaterloggedBl
         return level.getFluidState(belowPos).is(FluidTags.LAVA);
     }
 
+    @SuppressWarnings("SameParameterValue")
+    private static VoxelShape rotateShape(Direction from, Direction to, VoxelShape shape) {
+        VoxelShape[] buffer = new VoxelShape[]{shape, Shapes.empty()};
+        int times = (to.get2DDataValue() - from.get2DDataValue() + 4) % 4;
+
+        for (int i = 0; i < times; i++) {
+            buffer[0].forAllBoxes((minX, minY, minZ, maxX, maxY, maxZ) ->
+                    buffer[1] = Shapes.or(buffer[1], Shapes.create(1.0 - maxZ, minY, minX, 1.0 - minZ, maxY, maxX)));
+            buffer[0] = buffer[1];
+            buffer[1] = Shapes.empty();
+        }
+        return buffer[0];
+    }
+
     @Override
     public @NotNull MapCodec<SkilletBlock> codec() {
         return CODEC;
     }
-
-    // Modifica useItemOn en SkilletBlock:
 
     @Override
             //? if <1.21.2 {
@@ -227,17 +242,54 @@ public class SkilletBlock extends BaseEntityBlock implements SimpleWaterloggedBl
     protected @NotNull InteractionResult useWithoutItem(
             @NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hitResult
     ) {
-        if (level.getBlockEntity(pos) instanceof SkilletBlockEntity skilletEntity && skilletEntity.hasHandRecoverableContents()) {
-            if (!level.isClientSide) {
-                ItemStack taken = skilletEntity.takeContents();
-                if (!taken.isEmpty()) {
-                    if (!player.getInventory().add(taken)) {
-                        player.drop(taken, false);
+        if (level.getBlockEntity(pos) instanceof SkilletBlockEntity skilletEntity) {
+            if (skilletEntity.hasHandRecoverableContents()) {
+                if (!level.isClientSide) {
+                    ItemStack taken = skilletEntity.takeContents();
+                    if (!taken.isEmpty()) {
+                        if (!player.getInventory().add(taken)) {
+                            player.drop(taken, false);
+                        }
+                        level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.6F, 1.0F);
                     }
-                    level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.6F, 1.0F);
                 }
+                return InteractionResult.SUCCESS;
             }
-            return InteractionResult.SUCCESS;
+
+            if (player.isShiftKeyDown() && !player.isCreative()) {
+                if (!level.isClientSide) {
+                    ItemStack skilletStack = new ItemStack(this);
+
+                    if (skilletEntity.getDamage() > 0) {
+                        skilletStack.setDamageValue(skilletEntity.getDamage());
+                    }
+
+                    if (skilletEntity.isHotEligible()) {
+                        SkilletBlockItem.pickupHotState(skilletStack, skilletEntity, level);
+                    }
+
+                    ItemStack contents = skilletEntity.takeContents();
+                    level.removeBlock(pos, false);
+
+                    ItemStack mainHandStack = player.getItemInHand(InteractionHand.MAIN_HAND);
+                    if (mainHandStack.isEmpty()) {
+                        player.setItemInHand(InteractionHand.MAIN_HAND, skilletStack);
+                    } else if (!player.getInventory().add(skilletStack)) {
+                        player.drop(skilletStack, false);
+                    }
+
+                    if (!contents.isEmpty()) {
+                        if (!player.getInventory().add(contents)) {
+                            player.drop(contents, false);
+                        }
+                    }
+
+                    level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1.0F, 1.0F);
+                    player.awardStat(Stats.BLOCK_MINED.get(this));
+                    player.causeFoodExhaustion(0.005F);
+                }
+                return InteractionResult.SUCCESS;
+            }
         }
         return InteractionResult.PASS;
     }
@@ -380,9 +432,9 @@ public class SkilletBlock extends BaseEntityBlock implements SimpleWaterloggedBl
 
         //? if <1.21.2 {
         if (level.getBlockState(neighborPos).isSolidRender(level, neighborPos)) {
-        //?} else {
-        /*if (level.getBlockState(neighborPos).isSolidRender()) {
-         *///?}
+            //?} else {
+            /*if (level.getBlockState(neighborPos).isSolidRender()) {
+             *///?}
             return SHAPE_BASE;
         }
 
@@ -430,7 +482,7 @@ public class SkilletBlock extends BaseEntityBlock implements SimpleWaterloggedBl
         return super.updateShape(state, facing, neighborState, level, currentPos, neighborPos);
         //?} else {
         /*return super.updateShape(state, level, scheduledTickAccess, currentPos, facing, neighborPos, neighborState, random);
-        *///?}
+         *///?}
     }
 
     @Override
@@ -496,7 +548,7 @@ public class SkilletBlock extends BaseEntityBlock implements SimpleWaterloggedBl
     }
 
     @Override
-            //? if <1.21.2 {
+    //? if <1.21.2 {
     protected boolean isPathfindable(@NotNull BlockState state, @NotNull PathComputationType type) {
         return false;
     }
@@ -505,18 +557,4 @@ public class SkilletBlock extends BaseEntityBlock implements SimpleWaterloggedBl
         return false;
     }
     *///?}
-
-    @SuppressWarnings("SameParameterValue")
-    private static VoxelShape rotateShape(Direction from, Direction to, VoxelShape shape) {
-        VoxelShape[] buffer = new VoxelShape[]{shape, Shapes.empty()};
-        int times = (to.get2DDataValue() - from.get2DDataValue() + 4) % 4;
-
-        for (int i = 0; i < times; i++) {
-            buffer[0].forAllBoxes((minX, minY, minZ, maxX, maxY, maxZ) ->
-                    buffer[1] = Shapes.or(buffer[1], Shapes.create(1.0 - maxZ, minY, minX, 1.0 - minZ, maxY, maxX)));
-            buffer[0] = buffer[1];
-            buffer[1] = Shapes.empty();
-        }
-        return buffer[0];
-    }
 }

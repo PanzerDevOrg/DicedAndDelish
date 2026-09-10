@@ -16,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-@SuppressWarnings("CommentedOutCode")
 public record ShapelessCupCraftingRecipe(List<Ingredient> ingredients,
                                          ItemStack result) implements CraftingRecipe {
 
@@ -32,7 +31,7 @@ public record ShapelessCupCraftingRecipe(List<Ingredient> ingredients,
         if (nonEmptyCount != ingredients.size()) {
             return false;
         }
-        boolean[] consumed = new boolean[ingredients.size()];
+        int consumedMask = 0;
         for (int i = 0; i < inputSize; i++) {
             ItemStack stack = input.getItem(i);
             if (stack.isEmpty()) {
@@ -40,8 +39,9 @@ public record ShapelessCupCraftingRecipe(List<Ingredient> ingredients,
             }
             boolean found = false;
             for (int j = 0; j < ingredients.size(); j++) {
-                if (!consumed[j] && ingredients.get(j).test(stack)) {
-                    consumed[j] = true;
+                int bit = 1 << j;
+                if ((consumedMask & bit) == 0 && ingredients.get(j).test(stack)) {
+                    consumedMask |= bit;
                     found = true;
                     break;
                 }

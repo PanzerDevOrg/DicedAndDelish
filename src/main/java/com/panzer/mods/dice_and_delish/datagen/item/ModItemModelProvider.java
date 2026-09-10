@@ -22,8 +22,9 @@ public class ModItemModelProvider extends ItemModelProvider {
     @Override
     protected void registerModels() {
         // Blocks
-        applianceLit(ModItems.GRILL_TABLE, ModItems.GRILL_TABLE_SOUL, ModItems.SKILLET);
+        applianceLit(ModItems.GRILL_TABLE, ModItems.GRILL_TABLE_SOUL);
         applianceBlock(ModItems.CUTTING_BOARD, ModItems.GRILL_TABLE_UNLIT);
+        applianceBlockRenamed(ModItems.SKILLET, "skillet_unlit");
         applianceBlockRenamed(ModItems.GRILL_TABLE_SOUL_UNLIT, "grill_table_unlit");
         applianceBlockGenerated(ModItems.ORGANIC_SOIL);
         applianceBlockSuffixGenerated("_0", ModItems.FERTILE_FARMLAND);

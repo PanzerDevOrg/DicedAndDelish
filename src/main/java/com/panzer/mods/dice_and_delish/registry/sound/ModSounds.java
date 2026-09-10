@@ -14,20 +14,33 @@ public final class ModSounds {
     private static final DeferredRegister<SoundEvent> SOUNDS =
             DeferredRegister.create(Registries.SOUND_EVENT, DiceAndDelish.MOD_ID);
 
-    public static final DeferredHolder<SoundEvent, SoundEvent> GRILL_SIZZLE = SOUNDS.register("block.grill.sizzle",
-            () -> SoundEvent.createVariableRangeEvent(id("block/grill/sizzle")));
+    public static final DeferredHolder<SoundEvent, SoundEvent> GRILL_SIZZLE =
+            SOUNDS.register("block.grill.sizzle",
+                    () -> SoundEvent.createVariableRangeEvent(
+                            id("block/grill/sizzle")
+                    )
+            );
 
-    public static final DeferredHolder<SoundEvent, SoundEvent> GRILL_GRILLING = SOUNDS.register("block.grill.grilling",
-            () -> SoundEvent.createVariableRangeEvent(id("block/grill/grilling")));
+    public static final DeferredHolder<SoundEvent, SoundEvent> GRILL_PLACE_FOOD =
+            SOUNDS.register("block.grill.place_food",
+                    () -> SoundEvent.createVariableRangeEvent(
+                            id("block/grill/place_food")
+                    )
+            );
 
-    public static final DeferredHolder<SoundEvent, SoundEvent> GRILL_PLACE_FOOD = SOUNDS.register("block.grill.place_food",
-            () -> SoundEvent.createVariableRangeEvent(id("block/grill/place_food")));
+    public static final DeferredHolder<SoundEvent, SoundEvent> SKILLET_SIZZLE =
+            SOUNDS.register("block.skillet.sizzle_loop",
+                    () -> SoundEvent.createVariableRangeEvent(
+                            id("block/skillet/sizzle")
+                    )
+            );
 
-    public static final DeferredHolder<SoundEvent, SoundEvent> SKILLET_SIZZLE_LOOP = SOUNDS.register("block.skillet.sizzle_loop",
-            () -> SoundEvent.createVariableRangeEvent(id("block/skillet/sizzle_loop")));
-
-    public static final DeferredHolder<SoundEvent, SoundEvent> SKILLET_CLANG = SOUNDS.register("item.skillet.clang",
-            () -> SoundEvent.createVariableRangeEvent(id("item/skillet/clang")));
+    public static final DeferredHolder<SoundEvent, SoundEvent> SKILLET_CLANG =
+            SOUNDS.register("item.skillet.clang",
+                    () -> SoundEvent.createVariableRangeEvent(
+                            id("item/skillet/clang")
+                    )
+            );
 
     private ModSounds() {
     }

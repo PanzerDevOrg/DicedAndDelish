@@ -1,11 +1,14 @@
 package com.panzer.mods.dice_and_delish.item;
 
 import com.panzer.mods.dice_and_delish.blockentity.SkilletBlockEntity;
-import com.panzer.mods.dice_and_delish.item.component.SkilletHotState;
+import com.panzer.mods.dice_and_delish.item.component.HotState;
 import com.panzer.mods.dice_and_delish.registry.data.ModDataComponents;
 import com.panzer.mods.dice_and_delish.registry.sound.ModSounds;
 import com.panzer.mods.dice_and_delish.util.RandomUtil;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -16,15 +19,18 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.fml.loading.FMLEnvironment;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
-public class SkilletBlockItem extends BlockItem {
+public class SkilletBlockItem extends BlockItem implements IHotItem {
 
     private static final ResourceLocation BASE_ATTACK_DAMAGE_ID =
             ResourceLocation.withDefaultNamespace("base_attack_damage");
@@ -34,7 +40,7 @@ public class SkilletBlockItem extends BlockItem {
     private static final float ATTACK_DAMAGE_DELTA = 6.0F - 1.0F;
     private static final float ATTACK_SPEED_DELTA = 1.2F - 4.0F;
 
-    private static final double HOT_SKILLET_KNOCKBACK = 0.7;
+    private static final double HOT_SKILLET_KNOCKBACK = 0.25;
     private static final float HOT_SKILLET_FIRE_SECONDS = 4.0F;
     private static final float CLANG_VOLUME = 1.0F;
     private static final float CLANG_BASE_PITCH = 0.9F;
@@ -53,8 +59,9 @@ public class SkilletBlockItem extends BlockItem {
         super(block, properties.attributes(ATTRIBUTES));
     }
 
-    public static boolean isHot(ItemStack stack, Level level) {
-        SkilletHotState hotState = stack.get(ModDataComponents.SKILLET_HOT_STATE.get());
+    @SuppressWarnings("unused")
+    public static boolean isHotStateActive(ItemStack stack, Level level) {
+        HotState hotState = stack.get(ModDataComponents.HOT_STATE.get());
         return hotState != null && hotState.isActiveAt(level.getGameTime());
     }
 
@@ -62,15 +69,29 @@ public class SkilletBlockItem extends BlockItem {
         if (!entity.isHotEligible()) {
             return;
         }
-        stack.set(ModDataComponents.SKILLET_HOT_STATE.get(), new SkilletHotState(entity.computeHotUntilTick(level)));
+        stack.set(ModDataComponents.HOT_STATE.get(), new HotState(entity.computeHotUntilTick(level)));
     }
 
     @Override
-    public boolean hurtEnemy(@NotNull ItemStack stack, @NotNull LivingEntity attacker, @NotNull LivingEntity target) {
-        Level level = attacker.level();
+    public boolean isHot(ItemStack stack, Level level) {
+        return isHotStateActive(stack, level);
+    }
 
-        level.playSound(null, target.blockPosition(), ModSounds.SKILLET_CLANG.get(), SoundSource.PLAYERS,
-                CLANG_VOLUME, RandomUtil.jitteredPitch(level.getRandom(), CLANG_BASE_PITCH, CLANG_PITCH_VARIANCE));
+    @Override
+    public @NotNull Component getName(@NotNull ItemStack stack) {
+        Level level = ClientLevelGetter.getClientLevel();
+        if (level != null && isHot(stack, level)) {
+            //? <1.21.2 {
+            return Component.translatable(this.getDescriptionId(stack) + ".hot");
+            //?} else
+            //return Component.translatable(this.getDescriptionId() + ".hot");
+        }
+        return super.getName(stack);
+    }
+
+    @Override
+    public boolean hurtEnemy(@NotNull ItemStack stack, @NotNull LivingEntity target, @NotNull LivingEntity attacker) {
+        Level level = attacker.level();
 
         double dx = target.getX() - attacker.getX();
         double dz = target.getZ() - attacker.getZ();
@@ -84,7 +105,34 @@ public class SkilletBlockItem extends BlockItem {
     }
 
     @Override
+    public void appendHoverText(@NotNull ItemStack stack, @NotNull TooltipContext context,
+                                @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+
+        Level level = context.level();
+
+        if (level != null && isHot(stack, level)) {
+            tooltipComponents.add(
+                    Component.translatable("dice_and_delish.skillet.tooltip.hot_burn")
+                            .withStyle(ChatFormatting.RED, ChatFormatting.ITALIC)
+            );
+        }
+    }
+
+    @Override
+    @SuppressWarnings("resource")
     public void postHurtEnemy(@NotNull ItemStack stack, @NotNull LivingEntity target, @NotNull LivingEntity attacker) {
+        Level level = attacker.level();
+
+        level.playSound(
+                null,
+                target.getX(), target.getY(), target.getZ(),
+                ModSounds.SKILLET_CLANG.get(),
+                SoundSource.PLAYERS,
+                CLANG_VOLUME,
+                RandomUtil.jitteredPitch(level.getRandom(), CLANG_BASE_PITCH, CLANG_PITCH_VARIANCE)
+        );
+
         stack.hurtAndBreak(1, target, EquipmentSlot.MAINHAND);
     }
 
@@ -101,5 +149,15 @@ public class SkilletBlockItem extends BlockItem {
         }
 
         return superResult;
+    }
+
+    private static class ClientLevelGetter {
+        @Nullable
+        private static Level getClientLevel() {
+            if (FMLEnvironment.dist.isClient()) {
+                return Minecraft.getInstance().level;
+            }
+            return null;
+        }
     }
 }

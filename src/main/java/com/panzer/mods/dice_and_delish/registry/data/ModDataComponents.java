@@ -3,7 +3,7 @@ package com.panzer.mods.dice_and_delish.registry.data;
 import com.mojang.serialization.Codec;
 import com.panzer.mods.dice_and_delish.DiceAndDelish;
 import com.panzer.mods.dice_and_delish.item.component.IronCupContent;
-import com.panzer.mods.dice_and_delish.item.component.SkilletHotState;
+import com.panzer.mods.dice_and_delish.item.component.HotState;
 import com.panzer.mods.dice_and_delish.util.ModLogger;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
@@ -31,11 +31,11 @@ public final class ModDataComponents {
                             .networkSynchronized(ByteBufCodecs.FLOAT)
                             .build());
 
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<SkilletHotState>> SKILLET_HOT_STATE =
-            DATA_COMPONENTS.register("skillet_hot_state",
-                    () -> DataComponentType.<SkilletHotState>builder()
-                            .persistent(SkilletHotState.CODEC)
-                            .networkSynchronized(SkilletHotState.STREAM_CODEC)
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<HotState>> HOT_STATE =
+            DATA_COMPONENTS.register("hot_state",
+                    () -> DataComponentType.<HotState>builder()
+                            .persistent(HotState.CODEC)
+                            .networkSynchronized(HotState.STREAM_CODEC)
                             .build());
 
     private ModDataComponents() {

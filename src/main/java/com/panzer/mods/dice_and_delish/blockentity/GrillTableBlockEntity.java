@@ -66,14 +66,8 @@ public class GrillTableBlockEntity extends AbstractCookingBlockEntity {
     private static float computeShuffledRotation(long baseSeed, int localSlot) {
         RandomSource rand = RandomSource.create(baseSeed);
 
-        int[] ranges = {0, 1, 2, 3};
-        RandomUtil.shuffle(ranges, rand);
-
-        int[] signs = {1, -1, 1, -1};
-        RandomUtil.shuffle(signs, rand);
-
-        int rangeIndex = ranges[localSlot % 4];
-        int sign = signs[localSlot % 4];
+        int rangeIndex = fourElementShuffleIndex(rand, localSlot & 3);
+        int sign = (fourElementShuffleIndex(rand, localSlot & 3) & 1) == 0 ? 1 : -1;
 
         RandomSource slotRand = RandomSource.create(baseSeed + localSlot + 99);
         float minAngle = 30.0F + rangeIndex * 3.75F;
@@ -82,14 +76,38 @@ public class GrillTableBlockEntity extends AbstractCookingBlockEntity {
         return angle * sign;
     }
 
+    private static int fourElementShuffleIndex(RandomSource rand, int queryIndex) {
+        int v0 = 0, v1 = 1, v2 = 2, v3 = 3;
+
+        int j = rand.nextInt(4);
+        // swap(array[3], array[j])
+        int tmp = j == 0 ? v0 : j == 1 ? v1 : j == 2 ? v2 : v3;
+        if (j == 0) v0 = v3; else if (j == 1) v1 = v3; else if (j == 2) v2 = v3;
+        v3 = tmp;
+
+        j = rand.nextInt(3);
+        tmp = j == 0 ? v0 : j == 1 ? v1 : v2;
+        if (j == 0) v0 = v2; else if (j == 1) v1 = v2;
+        v2 = tmp;
+
+        j = rand.nextInt(2);
+        tmp = j == 0 ? v0 : v1;
+        if (j == 0) v0 = v1;
+        v1 = tmp;
+
+        return switch (queryIndex) {
+            case 0 -> v0;
+            case 1 -> v1;
+            case 2 -> v2;
+            default -> v3;
+        };
+    }
+
     @SuppressWarnings("SameParameterValue")
     private static double[] computeShuffledOffset(long baseSeed, int localSlot, double maxRandomOffset) {
         RandomSource rand = RandomSource.create(baseSeed ^ 0x5a5a5a5a5a5a5a5aL);
 
-        int[] quadrants = {0, 1, 2, 3};
-        RandomUtil.shuffle(quadrants, rand);
-
-        int quadrant = quadrants[localSlot % 4];
+        int quadrant = fourElementShuffleIndex(rand, localSlot & 3);
 
         RandomSource slotRand = RandomSource.create((baseSeed ^ 0x5a5a5a5a5a5a5a5aL) + localSlot + 99);
         double distance = (0.4 + slotRand.nextFloat() * 0.6) * maxRandomOffset;

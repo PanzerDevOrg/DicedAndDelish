@@ -6,7 +6,6 @@ import net.minecraft.world.effect.MobEffects;
 //?}
 import net.minecraft.world.food.FoodProperties;
 
-@SuppressWarnings("CommentedOutCode")
 public final class ModFoods {
 
     /// Raw Ingredients

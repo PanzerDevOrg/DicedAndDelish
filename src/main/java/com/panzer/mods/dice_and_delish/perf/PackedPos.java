@@ -1,7 +1,7 @@
 package com.panzer.mods.dice_and_delish.perf;
 
 /**
- * Bitfield layout (MSB &rarr; LSB, 64 bits total):
+ * Bitfield layout (MSB -> LSB, 64 bits total):
  *
  * <table border="1" cellpadding="5" cellspacing="0">
  *   <thead>
@@ -14,19 +14,19 @@ package com.panzer.mods.dice_and_delish.perf;
  *   </thead>
  *   <tbody>
  *     <tr>
- *       <td align="center"><b>38–63</b></td>
+ *       <td align="center"><b>38-63</b></td>
  *       <td align="center">26 bits</td>
  *       <td><code>X</code></td>
  *       <td>Sign-extended two's complement</td>
  *     </tr>
  *     <tr>
- *       <td align="center"><b>12–37</b></td>
+ *       <td align="center"><b>12-37</b></td>
  *       <td align="center">26 bits</td>
  *       <td><code>Z</code></td>
  *       <td>Sign-extended two's complement</td>
  *     </tr>
  *     <tr>
- *       <td align="center"><b>0–11</b></td>
+ *       <td align="center"><b>0-11</b></td>
  *       <td align="center">12 bits</td>
  *       <td><code>Y</code></td>
  *       <td>Sign-extended two's complement (<code>-2048</code> to <code>2047</code>, covers full build range)</td>

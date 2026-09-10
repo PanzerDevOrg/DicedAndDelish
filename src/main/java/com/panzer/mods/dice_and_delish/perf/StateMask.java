@@ -1,7 +1,7 @@
 package com.panzer.mods.dice_and_delish.perf;
 
 /**
- * Bitfield layout (LSB &rarr; MSB, 16 bits total):
+ * Bitfield layout (LSB -> MSB, 16 bits total):
  *
  * <table border="1" cellpadding="5" cellspacing="0">
  *   <thead>
@@ -28,14 +28,14 @@ package com.panzer.mods.dice_and_delish.perf;
  *       <td><code>1</code> = post-use residual heat window (decoupled from <code>HEATED</code>).</td>
  *     </tr>
  *     <tr>
- *       <td align="center"><b>3–6</b></td>
+ *       <td align="center"><b>3-6</b></td>
  *       <td><code>STAGE</code></td>
- *       <td>4 bits (0–15). Recipe or animation stage index.</td>
+ *       <td>4 bits (0-15). Recipe or animation stage index.</td>
  *     </tr>
  *     <tr>
- *       <td align="center"><b>7–15</b></td>
+ *       <td align="center"><b>7-15</b></td>
  *       <td><code>PROGRESS</code></td>
- *       <td>9 bits (0–511). Progress ticks (recipes capped under 511 ticks or externally scaled, e.g. <code>progress &gt;&gt; 1</code> for 0–1022 range).</td>
+ *       <td>9 bits (0-511). Progress ticks (recipes capped under 511 ticks or externally scaled, e.g. <code>progress >> 1</code> for 0-1022 range).</td>
  *     </tr>
  *   </tbody>
  * </table>

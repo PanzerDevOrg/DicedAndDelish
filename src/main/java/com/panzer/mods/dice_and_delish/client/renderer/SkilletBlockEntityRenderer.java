@@ -32,12 +32,9 @@ import org.jetbrains.annotations.NotNull;
 public class SkilletBlockEntityRenderer implements BlockEntityRenderer<SkilletBlockEntity> {
 
     private static final int SLOT_COUNT = SkilletBlockEntity.PAN_SLOTS_COUNT;
-    private static final double ROTATE_THRESHOLD_PIXELS = 8.0;
 
-    // CHANGED: Escala igual a la de CuttingBoardBlockEntityRenderer
-    private static final float ITEM_SCALE = 0.4F; // antes era 0.3F
+    private static final float ITEM_SCALE = 0.4F;
     private static final double SLOT_RADIUS = 0.19;
-    private static final float SLOT_TILT_DEGREES = 8.0F; // ya no se usa para items no-huevo, se mantiene por si acaso
     private static final double SLOT_ANGLE_OFFSET_DEGREES = 45.0;
     private static final double SLOT_ANGLE_STEP_DEGREES = 360.0 / SLOT_COUNT;
 
@@ -54,6 +51,11 @@ public class SkilletBlockEntityRenderer implements BlockEntityRenderer<SkilletBl
 
     static {
         for (int i = 0; i < SLOT_COUNT; i++) {
+            if (i == SkilletBlockEntity.INGREDIENT_SLOT) {
+                SLOT_X[i] = 0.0;
+                SLOT_Z[i] = 0.0;
+                continue;
+            }
             double angle = Math.toRadians(SLOT_ANGLE_OFFSET_DEGREES + i * SLOT_ANGLE_STEP_DEGREES);
             SLOT_X[i] = Math.cos(angle) * SLOT_RADIUS;
             SLOT_Z[i] = Math.sin(angle) * SLOT_RADIUS;
@@ -66,17 +68,17 @@ public class SkilletBlockEntityRenderer implements BlockEntityRenderer<SkilletBl
         this.itemRenderer = context.getItemRenderer();
     }
 
-    @Override
-    public boolean shouldRender(@NotNull SkilletBlockEntity blockEntity, @NotNull Vec3 cameraPos) {
-        return blockEntity.isCooking();
-    }
-
     private static double distanceToPlayerSqr(BlockPos pos) {
         Player player = Minecraft.getInstance().player;
         if (player == null) {
             return 0.0;
         }
         return player.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
+    }
+
+    @Override
+    public boolean shouldRender(@NotNull SkilletBlockEntity blockEntity, @NotNull Vec3 cameraPos) {
+        return blockEntity.isCooking();
     }
 
     @Override
@@ -100,7 +102,6 @@ public class SkilletBlockEntityRenderer implements BlockEntityRenderer<SkilletBl
         ClientLevel renderLevel = Minecraft.getInstance().level;
 
         AABB shapeBounds = surfaceBounds(state, renderLevel, pos);
-        boolean rotateUpright = shapeBounds.maxY * 16.0 >= ROTATE_THRESHOLD_PIXELS;
         float surfaceY = (float) shapeBounds.maxY;
 
         float progress = blockEntity.getCookingProgress();
@@ -125,7 +126,7 @@ public class SkilletBlockEntityRenderer implements BlockEntityRenderer<SkilletBl
                 hasEggLiquid = true;
                 continue;
             }
-            renderSlot(blockEntity, slot, stack, seedBase, surfaceY, rotateUpright,
+            renderSlot(blockEntity, slot, stack, seedBase, surfaceY,
                     poseStack, bufferSource, packedLight, packedOverlay, renderLevel, itemPastLod1, distanceSqr);
         }
 
@@ -174,9 +175,8 @@ public class SkilletBlockEntityRenderer implements BlockEntityRenderer<SkilletBl
     }
 
     private void renderSlot(SkilletBlockEntity blockEntity, int slot, ItemStack stack, int seedBase,
-                            float surfaceY, boolean rotateUpright,
-                            PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay,
-                            ClientLevel renderLevel, boolean pastLod1, double distanceSqr) {
+                            float surfaceY, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight,
+                            int packedOverlay, ClientLevel renderLevel, boolean pastLod1, double distanceSqr) {
         double baseX = 0.5 + SLOT_X[slot] + blockEntity.getPanOffsetX(slot);
         double baseZ = 0.5 + SLOT_Z[slot] + blockEntity.getPanOffsetZ(slot);
         float rotation = blockEntity.getPanRotation(slot);
@@ -201,12 +201,9 @@ public class SkilletBlockEntityRenderer implements BlockEntityRenderer<SkilletBl
                 yawJitter = (random.nextFloat() * 2.0F - 1.0F) * PILE_YAW_JITTER_DEGREES;
             }
 
-            // CHANGED: Posición Y – se añade un pequeño offset para que flote sobre la superficie
-            poseStack.translate(x, surfaceY + yLift + 0.02F, z);
+            poseStack.translate(x, surfaceY + yLift - 0.0425F, z);
             poseStack.mulPose(Axis.YP.rotationDegrees(rotation + yawJitter));
-            // CHANGED: Siempre se usa rotación X de 90° (plano) y se elimina el tilt
             poseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
-            // CHANGED: Escala aumentada a 0.4F (igual que en CuttingBoard)
             poseStack.scale(ITEM_SCALE, ITEM_SCALE, ITEM_SCALE);
 
             int seed = seedBase + slot * 31 + i;

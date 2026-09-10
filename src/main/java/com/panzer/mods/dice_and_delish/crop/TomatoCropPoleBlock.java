@@ -29,7 +29,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
-@SuppressWarnings("CommentedOutCode")
 public final class TomatoCropPoleBlock extends HarvestableCropBlock implements TallPlantGrowth {
 
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;

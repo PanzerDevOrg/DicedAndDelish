@@ -11,6 +11,7 @@ import net.neoforged.bus.api.IEventBus;
 public final class ModItemTags {
 
     public static final TagKey<Item> IRON_CUP = mod("iron_cup");
+    public static final TagKey<Item> CUT_INGREDIENTS = mod("cut_ingredients");
     public static final TagKey<Item> FRYING_PAN = c("tools/frying_pan");
     public static final TagKey<Item> KNIFE = c("tools/knife");
     public static final TagKey<Item> KNIFE_MIN_STONE = c("tools/knife/min_stone");

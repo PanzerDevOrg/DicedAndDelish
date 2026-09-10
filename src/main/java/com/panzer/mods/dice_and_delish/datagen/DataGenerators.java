@@ -31,7 +31,6 @@ import java.util.concurrent.CompletableFuture;
 import net.minecraft.data.recipes.RecipeProvider;
 *///?}
 
-@SuppressWarnings("CommentedOutCode")
 public final class DataGenerators {
 
     private DataGenerators() {

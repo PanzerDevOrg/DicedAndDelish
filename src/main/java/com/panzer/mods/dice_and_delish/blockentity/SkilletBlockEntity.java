@@ -3,13 +3,16 @@ package com.panzer.mods.dice_and_delish.blockentity;
 import com.panzer.mods.dice_and_delish.block.SkilletBlock;
 import com.panzer.mods.dice_and_delish.item.IronCupItem;
 import com.panzer.mods.dice_and_delish.item.component.IronCupContent;
+import com.panzer.mods.dice_and_delish.perf.EggStateMask;
 import com.panzer.mods.dice_and_delish.recipe.cook.CookRecipe;
 import com.panzer.mods.dice_and_delish.recipe.cook.CookRecipeInput;
 import com.panzer.mods.dice_and_delish.recipe.mix.MixRecipe;
 import com.panzer.mods.dice_and_delish.recipe.mix.MixRecipeInput;
 import com.panzer.mods.dice_and_delish.registry.blockentity.ModBlockEntities;
+import com.panzer.mods.dice_and_delish.registry.data.ModDataComponents;
 import com.panzer.mods.dice_and_delish.registry.recipe.ModRecipeTypes;
 import com.panzer.mods.dice_and_delish.registry.sound.ModSounds;
+import com.panzer.mods.dice_and_delish.registry.tags.ModItemTags;
 import com.panzer.mods.dice_and_delish.util.RandomUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,8 +25,10 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
@@ -35,7 +40,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Optional;
 
-@SuppressWarnings("CommentedOutCode")
 public class SkilletBlockEntity extends AbstractCookingBlockEntity {
 
     public static final int PAN_SLOTS_COUNT = 2;
@@ -47,7 +51,6 @@ public class SkilletBlockEntity extends AbstractCookingBlockEntity {
     private static final double TAU = Math.PI * 2.0;
     private static final double SYNC_TRACKING_RANGE = 64.0;
 
-    private static final String HOT_UNTIL_KEY = "HotUntilTick";
     private static final int HOT_STATE_SECONDS = 20;
     private static final int HOT_STATE_TICKS = HOT_STATE_SECONDS * 20;
 
@@ -60,10 +63,8 @@ public class SkilletBlockEntity extends AbstractCookingBlockEntity {
     private final float[] panOffsetX = new float[PAN_SLOTS_COUNT];
     private final float[] panOffsetZ = new float[PAN_SLOTS_COUNT];
 
-    private long hotUntilTick;
     private int damage = 0;
-    private int eggAloneProgress;
-    private int eggAloneCookTime;
+    private int eggAloneState;
 
     public SkilletBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.SKILLET.get(), pos, state, PAN_SLOTS_COUNT);
@@ -90,6 +91,21 @@ public class SkilletBlockEntity extends AbstractCookingBlockEntity {
 
     private static ItemStack eggStack() {
         return new ItemStack(Items.EGG);
+    }
+
+    private static boolean isSameIngredientIgnoringCookProgress(ItemStack a, ItemStack b) {
+        if (!ItemStack.isSameItem(a, b)) {
+            return false;
+        }
+        ItemStack cleanA = a.copy();
+        cleanA.remove(ModDataComponents.COOK_PROGRESS.get());
+        ItemStack cleanB = b.copy();
+        cleanB.remove(ModDataComponents.COOK_PROGRESS.get());
+        return ItemStack.isSameItemSameComponents(cleanA, cleanB);
+    }
+
+    private static boolean hasNearbyPlayer(Level level, BlockPos pos) {
+        return level.hasNearbyAlivePlayer(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, SYNC_TRACKING_RANGE);
     }
 
     public float getPanRotation(int slot) {
@@ -213,13 +229,32 @@ public class SkilletBlockEntity extends AbstractCookingBlockEntity {
 
         if (hasIngredient()) {
             ItemStack current = getItem(INGREDIENT_SLOT);
-            if (!ItemStack.isSameItemSameComponents(current, stack)) {
+            if (!isSameIngredientIgnoringCookProgress(current, stack)) {
                 return false;
             }
             return current.getCount() < current.getMaxStackSize();
         }
 
-        return canCookAt(serverLevel, stack);
+        if (canCookAt(serverLevel, stack)) {
+            return true;
+        }
+        return matchesAnyMixIngredient(serverLevel, stack);
+    }
+
+    private boolean matchesAnyMixIngredient(ServerLevel serverLevel, ItemStack stack) {
+        //? if <1.21.2 {
+        for (var holder : serverLevel.getRecipeManager().getAllRecipesFor(ModRecipeTypes.MIX_TYPE.get())) {
+            //?} else {
+            /*for (RecipeHolder<MixRecipe> holder : serverLevel.recipeAccess().recipeMap().byType(ModRecipeTypes.MIX_TYPE.get())) {
+             *///?}
+            MixRecipe recipe = holder.value();
+            for (Ingredient ingredient : recipe.inputs()) {
+                if (ingredient.test(stack)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public boolean isCooking() {
@@ -233,8 +268,7 @@ public class SkilletBlockEntity extends AbstractCookingBlockEntity {
         }
         eggStack.consume(1, entity);
         setEggSlotDirect(new ItemStack(Items.EGG));
-        eggAloneProgress = 0;
-        eggAloneCookTime = CookRecipe.DEFAULT_COOKING_TIME;
+        eggAloneState = EggStateMask.startOrClear(true);
         playSizzlePlace(lvl, getBlockPos());
         lvl.gameEvent(GameEvent.BLOCK_CHANGE, getBlockPos(), GameEvent.Context.of(entity, getBlockState()));
         markUpdated();
@@ -246,9 +280,10 @@ public class SkilletBlockEntity extends AbstractCookingBlockEntity {
             return;
         }
 
-        eggAloneProgress++;
+        eggAloneState = EggStateMask.incrementProgress(eggAloneState);
+        int progress = EggStateMask.getProgress(eggAloneState);
 
-        if (eggAloneProgress >= eggAloneCookTime) {
+        if (progress >= CookRecipe.DEFAULT_COOKING_TIME) {
             if (level instanceof ServerLevel serverLevel) {
                 Optional<RecipeHolder<MixRecipe>> mixRecipe =
                         mixRecipeCheck.getRecipeFor(new MixRecipeInput(List.of(eggStack())), serverLevel);
@@ -257,16 +292,11 @@ public class SkilletBlockEntity extends AbstractCookingBlockEntity {
                     onCookComplete(level, pos, EGG_SLOT, output);
                 });
             }
-            eggAloneProgress = 0;
-            eggAloneCookTime = 0;
+            eggAloneState = EggStateMask.startOrClear(false);
             markUpdated();
-        } else if (eggAloneProgress % 5 == 0 && hasNearbyPlayer(level, pos)) {
+        } else if (progress % 5 == 0 && hasNearbyPlayer(level, pos)) {
             markUpdated();
         }
-    }
-
-    private static boolean hasNearbyPlayer(Level level, BlockPos pos) {
-        return level.hasNearbyAlivePlayer(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, SYNC_TRACKING_RANGE);
     }
 
     public boolean placeFood(@Nullable LivingEntity entity, ItemStack incomingStack) {
@@ -284,16 +314,15 @@ public class SkilletBlockEntity extends AbstractCookingBlockEntity {
         }
 
         ItemStack currentStack = getItem(INGREDIENT_SLOT);
-        int maxAllowed = hasEggLiquid() ? 1 : incomingStack.getMaxStackSize();
+        boolean isCut = incomingStack.is(ModItemTags.CUT_INGREDIENTS);
+        int maxAllowed = (hasEggLiquid() && !isCut) ? 1 : incomingStack.getMaxStackSize();
 
-        // CASO 1: La sartén está vacía -> Insertar todo el stack posible de la mano
         if (currentStack.isEmpty()) {
             int amountToInsert = Math.min(incomingStack.getCount(), maxAllowed);
             ItemStack placed = incomingStack.consumeAndReturn(amountToInsert, entity);
 
             setItem(INGREDIENT_SLOT, placed);
-            eggAloneProgress = 0;
-            eggAloneCookTime = hasEggLiquid() ? CookRecipe.DEFAULT_COOKING_TIME : 0;
+            eggAloneState = EggStateMask.startOrClear(hasEggLiquid());
 
             playSizzlePlace(lvl, getBlockPos());
             lvl.gameEvent(GameEvent.BLOCK_CHANGE, getBlockPos(), GameEvent.Context.of(entity, getBlockState()));
@@ -301,23 +330,20 @@ public class SkilletBlockEntity extends AbstractCookingBlockEntity {
             return true;
         }
 
-        // CASO 2: Ya hay un item -> Apilar todo lo que quepa del mismo item
-        if (ItemStack.isSameItemSameComponents(currentStack, incomingStack)) {
+        if (isSameIngredientIgnoringCookProgress(currentStack, incomingStack)) {
             int currentCount = currentStack.getCount();
             if (currentCount >= maxAllowed) {
-                return false; // Límite alcanzado
+                return false;
             }
 
             int currentCookTime = getCookTime(INGREDIENT_SLOT);
             int currentProgress = getCookProgress(INGREDIENT_SLOT);
             int remainingTime = Math.max(0, currentCookTime - currentProgress);
 
-            // Si la cocción ya terminó, no permite seguir apilando
             if (currentProgress >= currentCookTime && currentCookTime > 0) {
                 return false;
             }
 
-            // Determinar cuánto espacio disponible queda en el stack
             int spaceLeft = maxAllowed - currentCount;
             int amountToAdd = Math.min(incomingStack.getCount(), spaceLeft);
 
@@ -325,19 +351,15 @@ public class SkilletBlockEntity extends AbstractCookingBlockEntity {
                 return false;
             }
 
-            // Consumir la cantidad requerida de la mano y aumentar el stack del skillet
             incomingStack.consume(amountToAdd, entity);
             currentStack.grow(amountToAdd);
             setItem(INGREDIENT_SLOT, currentStack);
 
-            // Cálculo de penalización proporcional a la cantidad añadida:
-            // Por cada unidad añadida se aplica (1/3 de la duración restante) / (espacio restante previo)
             int maxStack = currentStack.getMaxStackSize();
             int remainingSpaceBefore = Math.max(1, maxStack - currentCount);
             int unitPenaltyTime = (remainingTime / 3) / remainingSpaceBefore;
             int totalPenaltyTime = unitPenaltyTime * amountToAdd;
 
-            // Se ajusta el progreso hacia atrás según el tiempo total de penalización
             cookProgress[INGREDIENT_SLOT] = Math.max(0, currentProgress - totalPenaltyTime);
 
             playSizzlePlace(lvl, getBlockPos());
@@ -346,7 +368,34 @@ public class SkilletBlockEntity extends AbstractCookingBlockEntity {
             return true;
         }
 
+        if (currentStack.is(ModItemTags.CUT_INGREDIENTS) && getCookProgress(INGREDIENT_SLOT) == 0) {
+            ItemStack recovered = currentStack.copy();
+            int amountToInsert = Math.min(incomingStack.getCount(), maxAllowed);
+            ItemStack placed = incomingStack.consumeAndReturn(amountToInsert, entity);
+
+            setItem(INGREDIENT_SLOT, placed);
+            eggAloneState = EggStateMask.startOrClear(hasEggLiquid());
+
+            giveOrDropRecovered(lvl, entity, recovered);
+
+            playSizzlePlace(lvl, getBlockPos());
+            lvl.gameEvent(GameEvent.BLOCK_CHANGE, getBlockPos(), GameEvent.Context.of(entity, getBlockState()));
+            markUpdated();
+            return true;
+        }
+
         return false;
+    }
+
+    private void giveOrDropRecovered(Level lvl, @Nullable LivingEntity entity, ItemStack recovered) {
+        if (entity instanceof Player player) {
+            if (!player.getInventory().add(recovered)) {
+                player.drop(recovered, false);
+            }
+        } else {
+            Containers.dropItemStack(lvl, getBlockPos().getX() + 0.5,
+                    getBlockPos().getY() + 1.0, getBlockPos().getZ() + 0.5, recovered);
+        }
     }
 
     private void setEggSlotDirect(ItemStack stack) {
@@ -372,8 +421,7 @@ public class SkilletBlockEntity extends AbstractCookingBlockEntity {
             ItemStack out = items.get(INGREDIENT_SLOT).copy();
             setItem(INGREDIENT_SLOT, ItemStack.EMPTY);
             if (hasEggLiquid()) {
-                eggAloneProgress = 0;
-                eggAloneCookTime = CookRecipe.DEFAULT_COOKING_TIME;
+                eggAloneState = EggStateMask.startOrClear(true);
             }
             markUpdated();
             return out;
@@ -386,6 +434,10 @@ public class SkilletBlockEntity extends AbstractCookingBlockEntity {
             return false;
         }
         if (hasIngredient()) {
+            ItemStack ingredient = getItem(INGREDIENT_SLOT);
+            if (!ingredient.is(ModItemTags.CUT_INGREDIENTS)) {
+                return false;
+            }
             int progress = getCookProgress(INGREDIENT_SLOT);
             return progress == 0;
         }
@@ -398,8 +450,7 @@ public class SkilletBlockEntity extends AbstractCookingBlockEntity {
 
     public ItemStack extractEggToCup(ItemStack cupItemStack) {
         setEggSlotDirect(ItemStack.EMPTY);
-        eggAloneProgress = 0;
-        eggAloneCookTime = 0;
+        eggAloneState = EggStateMask.startOrClear(false);
         return IronCupItem.filled(cupItemStack.getItem(), IronCupContent.LIQUID_EGG);
     }
 
@@ -409,8 +460,7 @@ public class SkilletBlockEntity extends AbstractCookingBlockEntity {
 
     public void pourEggFromCup() {
         setEggSlotDirect(new ItemStack(Items.EGG));
-        eggAloneProgress = 0;
-        eggAloneCookTime = CookRecipe.DEFAULT_COOKING_TIME;
+        eggAloneState = EggStateMask.startOrClear(true);
     }
 
     @Override
@@ -418,13 +468,33 @@ public class SkilletBlockEntity extends AbstractCookingBlockEntity {
         if (!result.isItemEnabled(level.enabledFeatures())) {
             return;
         }
+
         Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 1.0625, pos.getZ() + 0.5, result);
 
-        if (hasEggLiquid()) {
+        if (slot == INGREDIENT_SLOT) {
+            ItemStack ingredientStack = items.get(INGREDIENT_SLOT);
+
+            if (!ingredientStack.isEmpty()) {
+                ingredientStack.shrink(1);
+
+                if (ingredientStack.isEmpty()) {
+                    items.set(INGREDIENT_SLOT, ItemStack.EMPTY);
+                    setEggSlotDirect(ItemStack.EMPTY);
+                    eggAloneState = EggStateMask.startOrClear(false);
+                } else {
+                    cookProgress[INGREDIENT_SLOT] = 0;
+
+                    if (hasEggLiquid()) {
+                        eggAloneState = EggStateMask.startOrClear(true);
+                    }
+                }
+            }
+        } else if (slot == EGG_SLOT) {
             setEggSlotDirect(ItemStack.EMPTY);
+            eggAloneState = EggStateMask.startOrClear(false);
         }
-        eggAloneProgress = 0;
-        eggAloneCookTime = 0;
+
+        markUpdated();
     }
 
     public boolean isHotEligible() {
@@ -463,35 +533,21 @@ public class SkilletBlockEntity extends AbstractCookingBlockEntity {
         }
 
         if (hasEggLiquid()) {
-            if (eggAloneCookTime <= 0) return 0.0f;
-            return Math.min(1.0f, (float) eggAloneProgress / (float) eggAloneCookTime);
+            if (!EggStateMask.isActive(eggAloneState)) return 0.0f;
+            return Math.min(1.0f, (float) EggStateMask.getProgress(eggAloneState) / (float) CookRecipe.DEFAULT_COOKING_TIME);
         }
 
         return 0.0f;
     }
 
     public ItemStack getCookingResult() {
-        Level lvl = getLevel();
-        if (!(lvl instanceof ServerLevel serverLevel)) {
-            return ItemStack.EMPTY;
-        }
-
         if (hasIngredient()) {
-            ItemStack ingredient = getItem(INGREDIENT_SLOT);
-            if (hasEggLiquid()) {
-                List<ItemStack> inputs = List.of(eggStack(), ingredient.copyWithCount(1));
-                return mixRecipeCheck.getRecipeFor(new MixRecipeInput(inputs), serverLevel)
-                        .map(holder -> holder.value().assemble(new MixRecipeInput(inputs), lvl.registryAccess()))
-                        .orElse(ItemStack.EMPTY);
-            } else {
-                CookRecipeInput input = new CookRecipeInput(ingredient.copyWithCount(1));
-                return cookRecipeCheck.getRecipeFor(input, serverLevel)
-                        .map(holder -> holder.value().assemble(input, lvl.registryAccess()))
-                        .orElse(ItemStack.EMPTY);
-            }
+            ItemStack cached = cachedOutput[INGREDIENT_SLOT];
+            return cached != null ? cached : ItemStack.EMPTY;
         }
 
-        if (hasEggLiquid()) {
+        Level lvl = getLevel();
+        if (hasEggLiquid() && lvl instanceof ServerLevel serverLevel) {
             List<ItemStack> inputs = List.of(eggStack());
             return mixRecipeCheck.getRecipeFor(new MixRecipeInput(inputs), serverLevel)
                     .map(holder -> holder.value().assemble(new MixRecipeInput(inputs), lvl.registryAccess()))
@@ -517,18 +573,21 @@ public class SkilletBlockEntity extends AbstractCookingBlockEntity {
     @Override
     protected void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
         super.loadAdditional(tag, registries);
-        hotUntilTick = tag.getLong(HOT_UNTIL_KEY);
         this.damage = tag.getInt("Damage");
-        this.eggAloneProgress = tag.getInt("EggAloneProgress");
-        this.eggAloneCookTime = tag.getInt("EggAloneCookTime");
+        if (tag.contains("EggAloneState")) {
+            this.eggAloneState = tag.getInt("EggAloneState");
+        } else {
+            int legacyProgress = tag.getInt("EggAloneProgress");
+            int legacyCookTime = tag.getInt("EggAloneCookTime");
+            this.eggAloneState = EggStateMask.setProgress(
+                    EggStateMask.startOrClear(legacyCookTime > 0), legacyProgress);
+        }
     }
 
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.putLong(HOT_UNTIL_KEY, hotUntilTick);
         tag.putInt("Damage", this.damage);
-        tag.putInt("EggAloneProgress", this.eggAloneProgress);
-        tag.putInt("EggAloneCookTime", this.eggAloneCookTime);
+        tag.putInt("EggAloneState", this.eggAloneState);
     }
 }

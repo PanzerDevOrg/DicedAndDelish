@@ -11,17 +11,25 @@ import net.neoforged.neoforge.registries.DeferredItem;
 @SuppressWarnings("SameParameterValue")
 public abstract class ModLanguageProvider extends LanguageProvider {
 
-    public ModLanguageProvider(PackOutput output, String locale) {
-        super(output, DiceAndDelish.MOD_ID, locale);
-    }
-
     private String wildCropFormat = "%s";
     private String cropSeedsFormat = "%s";
     private String knifePattern = "%s";
 
-    protected void addWildCropPrefix(String format) { this.wildCropFormat = format; }
-    protected void addCropSeedsPrefix(String format) { this.cropSeedsFormat = format; }
-    protected void addKnifePattern(String format) { this.knifePattern = format; }
+    public ModLanguageProvider(PackOutput output, String locale) {
+        super(output, DiceAndDelish.MOD_ID, locale);
+    }
+
+    protected void addWildCropPrefix(String format) {
+        this.wildCropFormat = format;
+    }
+
+    protected void addCropSeedsPrefix(String format) {
+        this.cropSeedsFormat = format;
+    }
+
+    protected void addKnifePattern(String format) {
+        this.knifePattern = format;
+    }
 
     public void add(DeferredItem<?> key, String name) {
         this.add(key.get().getDescriptionId(), name);
@@ -29,6 +37,10 @@ public abstract class ModLanguageProvider extends LanguageProvider {
 
     public void add(DeferredBlock<?> key, String name) {
         this.add(key.get().getDescriptionId(), name);
+    }
+
+    private void addTooltipTranslation(String category, String key, String text) {
+        add("dice_and_delish." + category + ".tooltip." + key, text);
     }
 
     protected void addCrop(DeferredBlock<?> wildBlock, DeferredItem<?> seeds, DeferredItem<?> cropItem, String cropName) {
@@ -46,7 +58,7 @@ public abstract class ModLanguageProvider extends LanguageProvider {
     }
 
     protected void addCupTooltip(String key, String text) {
-        add("dice_and_delish.iron_cup.tooltip." + key, text);
+        addTooltipTranslation("iron_cup", key, text);
     }
 
     protected void addSubtitle(DeferredHolder<SoundEvent, SoundEvent> sound, String text) {
@@ -88,5 +100,23 @@ public abstract class ModLanguageProvider extends LanguageProvider {
 
     protected void addDeathMessagePlayer(String damageTypeId, String message) {
         add("death.attack." + DiceAndDelish.MOD_ID + "." + damageTypeId + ".player", message);
+    }
+
+    protected void addHotTranslation(String key, String normalName, String hotName) {
+        add(key, normalName);
+        add(key + ".hot", hotName);
+    }
+
+    @SuppressWarnings("unused")
+    protected void addHotItem(DeferredItem<?> item, String normalName, String hotName) {
+        addHotTranslation(item.get().getDescriptionId(), normalName, hotName);
+    }
+
+    protected void addHotBlockItem(DeferredBlock<?> block, String normalName, String hotName) {
+        addHotTranslation(block.get().getDescriptionId(), normalName, hotName);
+    }
+
+    protected void addSkilletTooltip(String key, String text) {
+        addTooltipTranslation("skillet", key, text);
     }
 }

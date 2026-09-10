@@ -5,7 +5,7 @@ import com.panzer.mods.dice_and_delish.DiceAndDelish;
 @SuppressWarnings({"unused", "StringConcatenationArgumentToLogCall"})
 public final class ModLogger {
 
-    private static final String PREFIX = "[Panzer] [Dice&Delish]";
+    private static final String PREFIX = "[Panzer]";
     private static final String SINGLE_FORMAT = "{} {}";
     private static final String ARGS_FORMAT = "{} ";
 

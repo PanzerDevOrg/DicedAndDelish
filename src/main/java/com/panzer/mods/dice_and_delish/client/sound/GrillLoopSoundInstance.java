@@ -12,7 +12,7 @@ public class GrillLoopSoundInstance extends LoopingBlockSoundInstance<GrillTable
     private static final float VOLUME = 0.5F;
 
     public GrillLoopSoundInstance(Level level, BlockPos pos) {
-        super(ModSounds.GRILL_GRILLING, level, pos, Y_OFFSET, VOLUME, GrillTableBlockEntity.class,
+        super(ModSounds.GRILL_SIZZLE, level, pos, Y_OFFSET, VOLUME, GrillTableBlockEntity.class,
                 grill -> grill.getBlockState().getValue(BlockStateProperties.LIT) && grill.isCooking());
     }
 }
