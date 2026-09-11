@@ -472,22 +472,9 @@ public class SkilletBlockEntity extends AbstractCookingBlockEntity {
         Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 1.0625, pos.getZ() + 0.5, result);
 
         if (slot == INGREDIENT_SLOT) {
-            ItemStack ingredientStack = items.get(INGREDIENT_SLOT);
-
-            if (!ingredientStack.isEmpty()) {
-                ingredientStack.shrink(1);
-
-                if (ingredientStack.isEmpty()) {
-                    items.set(INGREDIENT_SLOT, ItemStack.EMPTY);
-                    setEggSlotDirect(ItemStack.EMPTY);
-                    eggAloneState = EggStateMask.startOrClear(false);
-                } else {
-                    cookProgress[INGREDIENT_SLOT] = 0;
-
-                    if (hasEggLiquid()) {
-                        eggAloneState = EggStateMask.startOrClear(true);
-                    }
-                }
+            if (hasEggLiquid()) {
+                setEggSlotDirect(ItemStack.EMPTY);
+                eggAloneState = EggStateMask.startOrClear(false);
             }
         } else if (slot == EGG_SLOT) {
             setEggSlotDirect(ItemStack.EMPTY);

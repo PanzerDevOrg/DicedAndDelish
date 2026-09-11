@@ -82,13 +82,21 @@ public abstract class AbstractCookingBlockEntity extends BlockEntity implements 
             entity.items.get(slot).set(ModDataComponents.COOK_PROGRESS.get(), progress);
 
             if (cookProgress[slot] >= cookTime[slot]) {
-                entity.items.set(slot, ItemStack.EMPTY);
+                ItemStack currentStack = entity.items.get(slot);
+                currentStack.shrink(1);
+                currentStack.remove(ModDataComponents.COOK_PROGRESS.get());
                 cookProgress[slot] = 0;
                 cachedOutput[slot] = null;
                 entity.cookingSlotCount--;
-                entity.adjustNonEmptySlotCount(-1);
+
+                if (currentStack.isEmpty()) {
+                    entity.items.set(slot, ItemStack.EMPTY);
+                    entity.adjustNonEmptySlotCount(-1);
+                }
+
                 dirty = true;
                 entity.onCookComplete(level, pos, slot, output);
+                entity.refreshSlotRecipe(slot);
             }
         }
 
@@ -159,6 +167,7 @@ public abstract class AbstractCookingBlockEntity extends BlockEntity implements 
         return true;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     protected abstract boolean isBlockActive(Level level, BlockState state);
 
     protected abstract CookResult resolveRecipe(Level level, int slot, ItemStack stack);

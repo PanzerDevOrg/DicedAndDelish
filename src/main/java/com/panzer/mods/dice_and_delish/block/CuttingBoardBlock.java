@@ -237,14 +237,25 @@ public class CuttingBoardBlock extends BaseEntityBlock {
         }
 
         if (!level.isClientSide) {
-            ItemStack result = match.get().value().assemble(new CuttingRecipeInput(board.getStoredItem(), knife), level.registryAccess());
-            board.clearStoredItem();
+            ItemStack stored = board.getStoredItem();
+            ItemStack single = stored.copyWithCount(1);
+
+            ItemStack result = match.get().value().assemble(
+                    new CuttingRecipeInput(single, knife), level.registryAccess());
+
+            stored.shrink(1);
+            if (stored.isEmpty()) {
+                board.clearStoredItem();
+            } else {
+                board.setStoredItem(stored);
+            }
 
             if (hasFireAspect(knife, level)) {
                 result = applyFireAspectCooking(result, level);
             }
 
-            level.addFreshEntity(new ItemEntity(level, pos.getX() + 0.5, pos.getY() + 0.2, pos.getZ() + 0.5, result));
+            level.addFreshEntity(new ItemEntity(level,
+                    pos.getX() + 0.5, pos.getY() + 0.2, pos.getZ() + 0.5, result));
 
             if (!player.getAbilities().instabuild && level instanceof ServerLevel serverLevel) {
                 //? if <1.21.2 {

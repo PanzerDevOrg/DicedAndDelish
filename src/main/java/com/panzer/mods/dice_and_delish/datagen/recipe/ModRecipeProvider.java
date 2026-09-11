@@ -115,8 +115,11 @@ public class ModRecipeProvider extends RecipeProvider /*? if <1.21.2 {*/ impleme
         createShapeless(RecipeCategory.FOOD, ModItems.CHEESE).requires(Items.MILK_BUCKET, 3)
                 .unlockedBy(getHasName(Items.MILK_BUCKET), has(Items.MILK_BUCKET)).save(output);
 
-        createShapeless(RecipeCategory.FOOD, ModItems.CHEESE_RAW_SANDWICH).requires(ModItems.RAW_SANDWICH_BREAD, 2).requires(ModItems.CHEESE_SLICE)
-                .unlockedBy(getHasName(ModItems.CHEESE_SLICE), has(ModItems.CHEESE_SLICE)).save(output);
+        createShapeless(RecipeCategory.FOOD, ModItems.CHEESE_RAW_SANDWICH).requires(ModItems.RAW_SANDWICH_BREAD, 2).requires(ModItems.GRILLED_CHEESE)
+                .unlockedBy(getHasName(ModItems.GRILLED_CHEESE), has(ModItems.GRILLED_CHEESE)).save(output);
+
+        createShapeless(RecipeCategory.FOOD, ModItems.CHEESE_TOASTED_SANDWICH).requires(ModItems.TOASTED_SANDWICH_BREAD, 2).requires(ModItems.GRILLED_CHEESE)
+                .unlockedBy(getHasName(ModItems.GRILLED_CHEESE), has(ModItems.GRILLED_CHEESE)).save(output);
 
         createShaped(RecipeCategory.TOOLS, ModItems.SKILLET).pattern("III").pattern("I I").pattern(" S ")
                 .define('I', Items.IRON_INGOT).define('S', Items.STICK)
@@ -128,20 +131,21 @@ public class ModRecipeProvider extends RecipeProvider /*? if <1.21.2 {*/ impleme
         cuttingRecipe(output, Ingredient.of(Items.CHICKEN), new ItemStack(ModItems.RAW_CHICKEN_PIECES.get(), 2));
         cuttingRecipe(output, Ingredient.of(Items.POTATO), new ItemStack(ModItems.CUT_POTATO.get(), 2));
         cuttingRecipe(output, Ingredient.of(ModItems.PURPLE_ONION), new ItemStack(ModItems.CUT_PURPLE_ONION.get(), 2));
+        cuttingRecipe(output, Ingredient.of(Items.BREAD), new ItemStack(ModItems.RAW_SANDWICH_BREAD.get(), 3));
 
         panMixRecipe(output, "tortilla", new ItemStack(ModItems.TORTILLA.get()), Ingredient.of(Items.EGG));
         panMixRecipe(output, "potato_tortilla", new ItemStack(ModItems.POTATO_TORTILLA.get()), Ingredient.of(Items.EGG), Ingredient.of(ModItems.CUT_POTATO));
-        panMixRecipe(output, "onion_tortilla", new ItemStack(ModItems.PURPLE_ONION_TORTILLA.get()), Ingredient.of(Items.EGG), Ingredient.of(ModItems.CUT_PURPLE_ONION));
+        panMixRecipe(output, "purple_onion_tortilla", new ItemStack(ModItems.PURPLE_ONION_TORTILLA.get()), Ingredient.of(Items.EGG), Ingredient.of(ModItems.CUT_PURPLE_ONION));
 
         cupYogurtRecipe(output, IronCupContent.MILK, List.of(CupContentIngredient.of(IronCupContent.MILK), Ingredient.of(Items.SUGAR)), IronCupContent.YOGURT);
         cupYogurtRecipe(output, IronCupContent.MILK, List.of(CupContentIngredient.of(IronCupContent.MILK), Ingredient.of(Items.SUGAR), Ingredient.of(ModItems.STRAWBERRY)), IronCupContent.STRAWBERRY_YOGURT);
         cupYogurtRecipe(output, IronCupContent.YOGURT, List.of(CupContentIngredient.of(IronCupContent.YOGURT), Ingredient.of(ModItems.STRAWBERRY)), IronCupContent.STRAWBERRY_YOGURT);
 
-        createShapeless(RecipeCategory.MISC, ModItems.ORGANIC_MIXTURE).requires(Items.BONE_MEAL, 4).requires(Items.ROTTEN_FLESH, 2).requires(Items.WHEAT, 2)
-                .unlockedBy(getHasName(Items.ROTTEN_FLESH), has(Items.ROTTEN_FLESH)).save(output);
+        // createShapeless(RecipeCategory.MISC, ModItems.ORGANIC_MIXTURE).requires(Items.BONE_MEAL, 4).requires(Items.ROTTEN_FLESH, 2).requires(Items.WHEAT, 2)
+        //         .unlockedBy(getHasName(Items.ROTTEN_FLESH), has(Items.ROTTEN_FLESH)).save(output);
 
-        createShapeless(RecipeCategory.MISC, ModItems.ORGANIC_SOIL).requires(ModItems.ORGANIC_MIXTURE).requires(Items.DIRT)
-                .unlockedBy(getHasName(ModItems.ORGANIC_MIXTURE), has(ModItems.ORGANIC_MIXTURE)).save(output);
+        // createShapeless(RecipeCategory.MISC, ModItems.ORGANIC_SOIL).requires(ModItems.ORGANIC_MIXTURE).requires(Items.DIRT)
+        //         .unlockedBy(getHasName(ModItems.ORGANIC_MIXTURE), has(ModItems.ORGANIC_MIXTURE)).save(output);
     }
 
     private void grillCookingRecipe(RecipeOutput output, ItemLike input, ItemLike result, int cookTime) {
