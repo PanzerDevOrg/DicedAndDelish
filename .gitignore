@@ -1,12 +1,12 @@
-.gradle/
+.*/
+!.github/
 build/
-run/
-.idea/
 versions/
 
 stonecutter.properties.toml
 
 *.bbmodel
 
-/*.config.json
-/*.xml
+*.config.json
+*.xml
+.editorconfig

@@ -28,11 +28,11 @@ so the mod stays lightweight and easy to extend or add compatibility for.
 ### 🔥 The Grill Table
 
 - An 8-slot cooking block: 4 dedicated **grill slots** driven by a custom cook recipe type, plus 4 **campfire slots**
-  that reuse vanilla campfire recipes — cook two different ways on the same block.
-- **Regular** and **Soul** variants — the Soul Grill Table burns with a bonus cooking-speed multiplier.
+  that reuse vanilla campfire recipes - cook two different ways on the same block.
+- **Regular** and **Soul** variants - the Soul Grill Table burns with a bonus cooking-speed multiplier.
 - Place a hay bale nearby for a cooking-speed boost.
 - Putting out a lit Grill (water, or a Shovel at the cost of 1 durability) now leaves behind a proper **Unlit
-  Grill**/ **Unlit Soul Grill** block — relight it in place with Flint and Steel, a Fire Charge, or a flaming arrow,
+  Grill**/ **Unlit Soul Grill** block - relight it in place with Flint and Steel, a Fire Charge, or a flaming arrow,
   or craft a fresh one with Blaze Powder (add Soul Sand/Soil to get the Soul variant instead).
 - Directional placement, waterloggable, ignites from lava, and lights up when active.
 - Custom block entity renderer with animated food items, sizzle particles, and looping grill audio for full sensory
@@ -42,7 +42,7 @@ so the mod stays lightweight and easy to extend or add compatibility for.
 
 - A compact frying station: cook a single **Egg** alone, or drop in **Cut Potato** or **Cut Purple Onion** while it
   cooks to turn it into a **Potato** or **Purple Onion Tortilla** instead.
-- Right-click an empty Iron Cup against a Skillet holding raw egg to draw off **Egg Liquid** — pour a filled Egg Cup
+- Right-click an empty Iron Cup against a Skillet holding raw egg to draw off **Egg Liquid** - pour a filled Egg Cup
   back onto an empty Skillet to return it.
 - Runs hot: stepping on an active Skillet burns whoever's careless enough to do it.
 - Its own block entity renderer and looping sizzle audio, plus a dedicated Jade tooltip showing egg count and
@@ -59,18 +59,18 @@ so the mod stays lightweight and easy to extend or add compatibility for.
 
 ### 🌱 Crops
 
-- **Strawberry**, **Tomato**, **Lettuce**, **Purple Onion**, and **Rice** — each with dedicated seeds, block states,
+- **Strawberry**, **Tomato**, **Lettuce**, **Purple Onion**, and **Rice** - each with dedicated seeds, block states,
   and growth stages.
 - Tomatoes grow on a **trellis/pole** mechanic for a more realistic garden layout.
 - **Wild variants** of every crop can be found generating naturally in the world, harvested for a small snack or to
-  kickstart your first farm — no starter seeds required.
+  kickstart your first farm - no starter seeds required.
 
 ### 🥛 The Iron Cup
 
 - A reusable, refillable vessel instead of a single-use container.
 - Fill it with **milk** straight from a cow, then turn it into **yogurt** or **strawberry yogurt** through dedicated
-  mixing/cup-crafting recipes — or draw raw **egg liquid** off a cooking Skillet and pour it back later.
-- Content is tracked via a proper data component, so each fill state has its own name, food values, and model — and JEI
+  mixing/cup-crafting recipes - or draw raw **egg liquid** off a cooking Skillet and pour it back later.
+- Content is tracked via a proper data component, so each fill state has its own name, food values, and model - and JEI
   treats each as a distinct entry automatically.
 
 ### 🍳 New Foods & Recipes
@@ -103,10 +103,10 @@ so the mod stays lightweight and easy to extend or add compatibility for.
    below.
 5. Launch the game.
 
-> This mod is a **client + server** mod — install it on both sides for multiplayer.
+> This mod is a **client + server** mod - install it on both sides for multiplayer.
 
 > ⚠️ **Upgrading from NerdSoft Kitchen (pre-1.0.0)?** The mod ID and every registry name changed as part of the
-> rename to Dice & Delish. Blocks/items placed under the old `nerdsoftkitchen` ID will not carry over automatically —
+> rename to Dice & Delish. Blocks/items placed under the old `nerdsoftkitchen` ID will not carry over automatically -
 > back up your world first, and expect to need a rename/migration data fix (or a fresh start) on existing saves.
 
 ## Configuration & Integration
@@ -119,19 +119,19 @@ Optional, client-side. When installed, Dice & Delish registers:
   its required catalyst, with explicit sort ordering between them.
 - Subtype support for the Iron Cup, so each fill state (empty, milk, yogurt, strawberry yogurt, egg liquid) shows up
   and searches as its own distinct item.
-- Recipes now reliably register after loading into a world — a previous bug where JEI's runtime callback could fire
+- Recipes now reliably register after loading into a world - a previous bug where JEI's runtime callback could fire
   before any level was loaded (silently skipping registration) has been fixed.
 
 ### Jade
 
 Optional, client-side. When installed, hovering over an active **Grill Table** or **Skillet** shows an interactive
-tooltip with the items currently cooking inside — including egg count and remaining progress for the Skillet — no
+tooltip with the items currently cooking inside - including egg count and remaining progress for the Skillet - no
 need to open a GUI to check progress.
 
 ### Data Components
 
 Iron Cup contents are implemented as a
-first-class [data component](https://docs.neoforged.net/docs/1.21.1/items/datacomponents/), not NBT or metadata — this
+first-class [data component](https://docs.neoforged.net/docs/1.21.1/items/datacomponents/), not NBT or metadata - this
 keeps stacking, tooltips, and JEI/Jade integration consistent and future-proof against further additions.
 
 No config file is required; all tuning currently lives in the datapack (recipes, loot tables, tags).
@@ -148,14 +148,19 @@ Contributions are welcome for **bug reports, translations, and datapack-side con
 
 1. **Bugs & suggestions:** open a [GitHub Issue](https://github.com/PanzerOrg/Panzer-Kitchen/issues) with your
    Minecraft/NeoForge/mod version, a log if relevant, and steps to reproduce.
-2. **Pull requests:** open an issue first to discuss the change before investing time in a PR — this keeps effort
+2. **Pull requests:** open an issue first to discuss the change before investing time in a PR - this keeps effort
    aligned with where the project is headed, and avoids duplicate work.
 3. **Translations:** language files live under `src/main/java/.../datagen/ModEnUsLanguageProvider.java` and
-   `ModEsEsLanguageProvider.java` (datagen-based, not raw JSON) — open an issue to propose or contribute a new language.
-4. **Dev environment:** standard NeoForge Gradle userdev setup — `./gradlew runData` and then `./gradlew runClient` to
+   `ModEsEsLanguageProvider.java` (datagen-based, not raw JSON) - open an issue to propose or contribute a new language.
+4. **Dev environment:** standard NeoForge Gradle userdev setup - `./gradlew runData` and then `./gradlew runClient` to
    generate assets and launch.
 
 Please be respectful and constructive when opening issues or discussing changes.
+
+## Authors & Credits
+
+* **Author:** Vishal Torres Nun ([@Bichal](https://github.com/Bichal))
+* **Credits:** Hugo Escribano Moreno ([@HugoBeshugoXD](https://github.com/HugobesugoXD))
 
 ## License
 
@@ -163,36 +168,19 @@ Dice & Delish uses a **dual-license model**:
 
 | Content                             | License                                                                                                                              |
 |-------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
-| Source code (Java, Rust, C++)       | [GNU Affero General Public License v3.0 (AGPLv3)](https://www.gnu.org/licenses/agpl-3.0.html) — see [`LICENSE-AGPL`](./LICENSE-AGPL) |
-| Artwork, logos, and branding assets | [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) — see [`LICENSE-CC`](./LICENSE-CC)                             |
+| Source code (Java, Rust, C++)       | [GNU Affero General Public License v3.0 (AGPLv3)](https://www.gnu.org/licenses/agpl-3.0.html) - see [`LICENSE-AGPL`](./LICENSE-AGPL) |
+| Artwork, logos, and branding assets | [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) - see [`LICENSE-CC`](./LICENSE-CC)                             |
 
-In short, for the **source code**:
+### Source Code (AGPLv3)
+- **Share & Adapt** - You're free to study, modify, and redistribute it under AGPLv3 terms.
+- **Network copyleft** - If you run a modified version as a network service, you must make your modifications' source available to users of that service.
 
-- **Share & Adapt** — you're free to study, modify, and redistribute it under AGPLv3 terms.
-- **Network copyleft** — if you run a modified version as a network service, you must make your modifications' source
-  available to users of that service.
+### Artwork, Logos, & Assets (CC BY-NC-SA 4.0)
+- **Attribution** - You must credit the original authors ([@Bichal](https://github.com/Bichal) & [@HugoBeshugoXD](https://github.com/HugobesugoXD)) and link back to this repository.
+- **NonCommercial** - No selling the assets or derivatives, or using them commercially, without explicit permission.
+- **ShareAlike** - If you remix, transform, or build upon the material, you must distribute your contributions under the same license.
 
-And for **artwork, logos, and branding**:
-
-- **Attribution** — credit Panzer and link back to the original.
-- **NonCommercial** — no selling the assets or derivatives, or using them commercially, without permission.
-- **ShareAlike** — if you remix or build on them, your version must carry the same license.
-
-See [`LICENSE`](./LICENSE) for the full summary and links to both license texts, or open an issue if you'd like to
-discuss usage outside these terms.
-
-In short, you're free to:
-
-- **Share** — copy and redistribute the mod in any medium or format.
-- **Adapt** — remix, transform, and build upon it.
-
-Under these terms:
-
-- **Attribution** — credit Panzer (Bichal & Hugo) and link back to the original.
-- **NonCommercial** — no selling the mod or derivatives, or using them commercially, without permission.
-- **ShareAlike** — if you remix or build on it, your version must carry the same license.
-
-See [`LICENSE`](LICENSE) for the full legal text, or open an issue if you'd like to discuss usage outside these terms.
+See [`LICENSE`](./LICENSE) for the full summary and links to both license texts, or open an issue if you'd like to discuss usage outside these terms.
 
 ---
 
