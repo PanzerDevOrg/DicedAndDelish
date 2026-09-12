@@ -2,7 +2,7 @@
 id = "dice_and_delish"
 name = "Dice & Delish"
 group = "com.panzer.mods"
-package = "com.panzer.mods.diceanddelish"
+package = "com.panzer.mods.dice_and_delish"
 version = "1.0.0"
 license = "AGPLv3"
 resources_license = "CC-BY-NC-SA-4.0"

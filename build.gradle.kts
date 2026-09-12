@@ -1,5 +1,7 @@
 import com.panzer.gradle.JsonMinifier
 import com.panzer.gradle.PanzerModExtension
+import org.apache.tools.ant.filters.ReplaceTokens
+import org.gradle.kotlin.dsl.invoke
 
 plugins {
     id("panzer.neoforge-mod")
@@ -119,9 +121,23 @@ tasks {
 
         filesMatching("META-INF/neoforge.mods.toml") { expand(props) }
 
+        val basePackage = modProps.req(project, "mod.package")
+        val mixinPackage = "$basePackage.mixin"
         val mixinJava = "JAVA_${modProps.requiredJava.majorVersion}"
-        filesMatching("*.mixins.json") { expand("java" to mixinJava) }
 
+        inputs.property("java", mixinJava)
+        inputs.property("package", mixinPackage)
+
+        filesMatching("*.mixins.json") {
+            filter<ReplaceTokens>(
+                "beginToken" to $$"${",
+                "endToken" to "}",
+                "tokens" to mapOf(
+                    "java" to mixinJava,
+                    "package" to mixinPackage
+                )
+            )
+        }
         doLast {
             JsonMinifier.minifyInPlace(destinationDir, setOf(".json", ".mcmeta"))
         }
