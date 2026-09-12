@@ -9,7 +9,7 @@
 
 **A cooking overhaul for NeoForge 1.21**
 <br>
-**New crops, a multi-slot grill table and fillable vessels.**
+**New crops, a multi-slot grill table, a skillet, a cutting board, and fillable vessels.**
 </div>
 
 ---
@@ -17,18 +17,13 @@
 ## Overview
 
 **Dice & Delish** adds a small but deep cooking loop to Minecraft: grow your own produce, work a hand-fed **Grill
-Table**, and fill a reusable **Iron Cup** with milk, yogurt, or strawberry yogurt. Everything is built data-driven on
-top of vanilla systems (custom recipe types, data components, and datagen for `recipes/loot/tags/advancements/language`),
+Table** and **Skillet**, dice and slice ingredients on a **Cutting Board** with a full knife tier line, and fill a
+reusable **Iron Cup** with milk, yogurt, strawberry yogurt, or raw egg liquid. Everything is built data-driven on
+top of vanilla systems (custom recipe types, data components, and datagen for
+`recipes/loot/tags/advancements/language`),
 so the mod stays lightweight and easy to extend or add compatibility for.
 
-> Currently in **Beta** — core systems are implemented and stable, but content, balance, and polish are still
-> evolving. Feedback and bug reports are very welcome.
-
 ## Features
-
-<div align="center">
-<img src="docs/media/showcase.gif" alt="Feature showcase" width="800"/>
-</div>
 
 ### 🔥 The Grill Table
 
@@ -36,14 +31,36 @@ so the mod stays lightweight and easy to extend or add compatibility for.
   that reuse vanilla campfire recipes — cook two different ways on the same block.
 - **Regular** and **Soul** variants — the Soul Grill Table burns with a bonus cooking-speed multiplier.
 - Place a hay bale nearby for a cooking-speed boost.
+- Putting out a lit Grill (water, or a Shovel at the cost of 1 durability) now leaves behind a proper **Unlit
+  Grill**/ **Unlit Soul Grill** block — relight it in place with Flint and Steel, a Fire Charge, or a flaming arrow,
+  or craft a fresh one with Blaze Powder (add Soul Sand/Soil to get the Soul variant instead).
 - Directional placement, waterloggable, ignites from lava, and lights up when active.
 - Custom block entity renderer with animated food items, sizzle particles, and looping grill audio for full sensory
   feedback.
 
+### 🍳 The Skillet
+
+- A compact frying station: cook a single **Egg** alone, or drop in **Cut Potato** or **Cut Purple Onion** while it
+  cooks to turn it into a **Potato** or **Purple Onion Tortilla** instead.
+- Right-click an empty Iron Cup against a Skillet holding raw egg to draw off **Egg Liquid** — pour a filled Egg Cup
+  back onto an empty Skillet to return it.
+- Runs hot: stepping on an active Skillet burns whoever's careless enough to do it.
+- Its own block entity renderer and looping sizzle audio, plus a dedicated Jade tooltip showing egg count and
+  remaining cook progress.
+
+### 🔪 The Cutting Board & Knives
+
+- Place a cuttable ingredient on the **Cutting Board**, then cut it with a knife to produce prep items like Cut
+  Potato, Cut Purple Onion, diced raw chicken, or sliced cheese.
+- A complete knife tier line: **Stone, Iron, Gold, Diamond, Obsidian, and Netherite** (Netherite via smithing
+  upgrade, Obsidian backed by a new dedicated tool tier).
+- Its own block entity renderer, and rendered at reduced detail past configurable chunk-distance tiers alongside the
+  Grill Table, easing load in large builds and farms.
+
 ### 🌱 Crops
 
-- **Strawberry**, **Tomato**, **Lettuce**, and **Purple Onion** — each with dedicated seeds, block states, and growth
-  stages.
+- **Strawberry**, **Tomato**, **Lettuce**, **Purple Onion**, and **Rice** — each with dedicated seeds, block states,
+  and growth stages.
 - Tomatoes grow on a **trellis/pole** mechanic for a more realistic garden layout.
 - **Wild variants** of every crop can be found generating naturally in the world, harvested for a small snack or to
   kickstart your first farm — no starter seeds required.
@@ -52,15 +69,16 @@ so the mod stays lightweight and easy to extend or add compatibility for.
 
 - A reusable, refillable vessel instead of a single-use container.
 - Fill it with **milk** straight from a cow, then turn it into **yogurt** or **strawberry yogurt** through dedicated
-  curdle/mix recipes.
+  mixing/cup-crafting recipes — or draw raw **egg liquid** off a cooking Skillet and pour it back later.
 - Content is tracked via a proper data component, so each fill state has its own name, food values, and model — and JEI
   treats each as a distinct entry automatically.
 
 ### 🍳 New Foods & Recipes
 
-- Raw & cooked chicken pieces, fried egg, salad, milk, yogurt, and strawberry yogurt.
-- Custom recipe types: grill cooking, curdling, mixing, and shapeless cup crafting (with a dedicated ingredient type for
-  cup contents).
+- Raw & cooked chicken pieces, cut potato & purple onion, fried egg, tortillas (plain, potato, purple onion), rice &
+  rice bowl, cheese & sandwiches (raw and toasted), grilled cheese, salad, milk, yogurt, and strawberry yogurt.
+- Custom recipe types: grill cooking, skillet cooking, cutting, mixing, and shapeless cup crafting (with a dedicated
+  ingredient type for cup contents).
 - A full data-driven backend: recipes, loot tables, item/block tags, advancements, biome/placed features for crop
   world-gen, and sound definitions are all generated, not hand-authored per platform.
 
@@ -87,20 +105,28 @@ so the mod stays lightweight and easy to extend or add compatibility for.
 
 > This mod is a **client + server** mod — install it on both sides for multiplayer.
 
+> ⚠️ **Upgrading from NerdSoft Kitchen (pre-1.0.0)?** The mod ID and every registry name changed as part of the
+> rename to Dice & Delish. Blocks/items placed under the old `nerdsoftkitchen` ID will not carry over automatically —
+> back up your world first, and expect to need a rename/migration data fix (or a fresh start) on existing saves.
+
 ## Configuration & Integration
 
 ### JEI (Just Enough Items)
 
 Optional, client-side. When installed, Dice & Delish registers:
 
-- A dedicated **Grill Cooking** recipe category showing every custom grill recipe alongside its required catalyst.
-- Subtype support for the Iron Cup, so each fill state (empty, milk, yogurt, strawberry yogurt) shows up and searches as
-  its own distinct item.
+- Dedicated **Grill Cooking**, **Skillet**, and **Cutting** recipe categories showing every custom recipe alongside
+  its required catalyst, with explicit sort ordering between them.
+- Subtype support for the Iron Cup, so each fill state (empty, milk, yogurt, strawberry yogurt, egg liquid) shows up
+  and searches as its own distinct item.
+- Recipes now reliably register after loading into a world — a previous bug where JEI's runtime callback could fire
+  before any level was loaded (silently skipping registration) has been fixed.
 
 ### Jade
 
-Optional, client-side. When installed, hovering over an active **Grill Table** shows an interactive tooltip with the
-items currently cooking inside it — no need to open a GUI to check progress.
+Optional, client-side. When installed, hovering over an active **Grill Table** or **Skillet** shows an interactive
+tooltip with the items currently cooking inside — including egg count and remaining progress for the Skillet — no
+need to open a GUI to check progress.
 
 ### Data Components
 
@@ -108,14 +134,12 @@ Iron Cup contents are implemented as a
 first-class [data component](https://docs.neoforged.net/docs/1.21.1/items/datacomponents/), not NBT or metadata — this
 keeps stacking, tooltips, and JEI/Jade integration consistent and future-proof against further additions.
 
-No config file is required for Beta; all tuning currently lives in the datapack (recipes, loot tables, tags).
+No config file is required; all tuning currently lives in the datapack (recipes, loot tables, tags).
 
 ## Screenshots
 
 <div align="center">
 <img src="docs/media/screenshot_grill.png" width="400"/> <img src="docs/media/screenshot_farm.png" width="400"/>
-<br/>
-<img src="docs/media/screenshot_kitchen_tab.png" width="400"/> <img src="docs/media/screenshot_advancements.png" width="400"/>
 </div>
 
 ## Contribution Guidelines
@@ -176,7 +200,7 @@ See [`LICENSE`](LICENSE) for the full legal text, or open an issue if you'd like
 
 ![Logo](docs/media/logo_small.png)
 
-Made by **[Panzer](https://github.com/PanzerOrg)**
+<div style="display: flex; justify-content: center; align-items: center; gap: 0.2rem;">Made by <a href="https://github.com/PanzerDevOrg">Panzer</a> <img src="docs/media/panzer_logo.svg" width=32></div>
 
 [![Modrinth](https://img.shields.io/badge/Modrinth-Download-1bd96a?style=for-the-badge&logo=modrinth)](https://modrinth.com/mod/diceanddelish)
 [![CurseForge](https://img.shields.io/badge/CurseForge-Download-f16436?style=for-the-badge&logo=curseforge)](https://www.curseforge.com/minecraft/mc-mods/diceanddelish)
